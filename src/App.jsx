@@ -350,7 +350,7 @@ function MiniPomodoro({ v, visible, onClose }) {
 }
 
 // ─── GRAPHIQUE SCORES ─────────────────────────────────────────────────────────
-function GraphiqueScores({ historique, v }) {
+function GraphiqueScores({ historique, v, langue }) {
   const quiz = historique.filter(h => h.type === "quiz").slice(-10);
   if (quiz.length < 2) return <div style={{ textAlign: "center", color: v.textMuted, fontSize: "0.85rem", padding: "1.5rem 0" }}>{langue === "en" ? "Do at least 2 quizzes to see your graph 📈" : langue === "es" ? "Haz al menos 2 quizzes para ver tu gráfico 📈" : "Fais au moins 2 quiz pour voir ton graphique 📈"}</div>;
   const scores = quiz.map(q => Math.round(q.score / (q.questions?.length || 5) * 100));
@@ -386,7 +386,7 @@ function GraphiqueScores({ historique, v }) {
 }
 
 // ─── PRÉDICTION DE NOTE PAR MATIÈRE ──────────────────────────────────────────
-function PredictionNotes({ historique, v }) {
+function PredictionNotes({ historique, v, langue }) {
   const quizParMatiere = {};
   historique.filter(h => h.type === "quiz").forEach(q => {
     if (!quizParMatiere[q.matiere]) quizParMatiere[q.matiere] = [];
@@ -940,7 +940,7 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
         {nbQuiz >= 2 && (
           <>
             <div style={{ fontWeight: 600, color: v.text, fontSize: "0.88rem", marginBottom: "0.8rem" }}>📈 Évolution de tes scores</div>
-            <GraphiqueScores historique={historique} v={v} />
+            <GraphiqueScores historique={historique} v={v} langue={langue} />
           </>
         )}
         {nbQuiz === 0 && nbResumes === 0 && <div style={{ textAlign: "center", color: v.textMuted, fontSize: "0.85rem" }}>{langue === "en" ? "Do your first quiz or summary to see your stats! 🌿" : langue === "es" ? "Haz tu primer quiz o resumen para ver tus estadísticas! 🌿" : "Fais ton premier quiz ou résumé pour voir tes stats ! 🌿"}</div>}
@@ -950,7 +950,7 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
       <Card v={v}>
         <div style={{ fontWeight: 700, color: v.accent, marginBottom: "0.4rem" }}>{langue === "en" ? "🎯 Grade predictions" : langue === "es" ? "🎯 Predicción de notas" : "🎯 Prédiction de notes"}</div>
         <div style={{ fontSize: "0.78rem", color: v.textMuted, marginBottom: "1rem" }}>{langue === "en" ? "Estimated from your quizzes, by subject" : langue === "es" ? "Estimado a partir de tus quizzes" : "Estimée d'après tes quiz, par matière"}</div>
-        <PredictionNotes historique={historique} v={v} />
+        <PredictionNotes historique={historique} v={v} langue={langue} />
       </Card>
 
       {/* Badges */}

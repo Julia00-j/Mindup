@@ -1433,26 +1433,26 @@ export default function App() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: v.bg, backgroundImage: v.bgImage, backgroundRepeat: "repeat", backgroundSize: v.bgSize, color: v.text, fontFamily: "'Georgia', serif", overflowX: "hidden", width: "100%" }}>
+    <div style={{ minHeight: "100vh", background: v.bg, backgroundImage: v.bgImage, backgroundRepeat: "repeat", backgroundSize: v.bgSize, color: v.text, fontFamily: "'Georgia', serif", overflowX: "hidden", width: "100%", maxWidth: "100vw", position: "relative" }}>
       {/* NAVBAR */}
-      <div style={{ background: v.navBg, backdropFilter: "blur(12px)", borderBottom: `1px solid ${v.cardBorder}`, padding: isMobile ? "0.8rem 1rem" : "0.9rem 2rem", position: "sticky", top: 0, zIndex: 100, overflowX: "hidden", width: "100%", boxSizing: "border-box" }}>
+      <div style={{ background: v.navBg, backdropFilter: "blur(12px)", borderBottom: `1px solid ${v.cardBorder}`, padding: isMobile ? "0.8rem 1rem" : "0.9rem 2rem", position: "sticky", top: 0, zIndex: 100, overflowX: "hidden", width: "100%", maxWidth: "100vw", boxSizing: "border-box" }}>
         {isMobile ? (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+          <div style={{ width: "100%", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem", width: "100%", boxSizing: "border-box" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", minWidth: 0, flex: 1 }}>
                 {photo
-                  ? <img src={photo} alt="profil" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", border: `2px solid ${v.accent}` }} />
-                  : <div style={{ width: 36, height: 36, borderRadius: "50%", background: v.accentBg, border: `2px solid ${v.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 700, color: v.accent }}>{prenom ? prenom[0].toUpperCase() : "🎓"}</div>}
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: "1rem", color: v.accent }}>🎓 {t.titre}</div>
-                  {prenom && <div style={{ fontSize: "0.72rem", color: v.textMuted }}>{t.bonjour}, {prenom} 🌸</div>}
+                  ? <img src={photo} alt="profil" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", border: `2px solid ${v.accent}`, flexShrink: 0 }} />
+                  : <div style={{ width: 36, height: 36, borderRadius: "50%", background: v.accentBg, border: `2px solid ${v.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", fontWeight: 700, color: v.accent, flexShrink: 0 }}>{prenom ? prenom[0].toUpperCase() : "🎓"}</div>}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: "1rem", color: v.accent, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>🎓 {t.titre}</div>
+                  {prenom && <div style={{ fontSize: "0.72rem", color: v.textMuted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.bonjour}, {prenom} 🌸</div>}
                 </div>
               </div>
               {!pomodoroVisible
-                ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.3rem 0.6rem", color: v.textMuted, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit" }}>⏱️</button>
+                ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.3rem 0.6rem", color: v.textMuted, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit", flexShrink: 0 }}>⏱️</button>
                 : <MiniPomodoro v={v} visible={true} onClose={() => setPomodoroVisible(false)} />}
             </div>
-            <div style={{ display: "flex", gap: "0.3rem", overflowX: "auto", paddingBottom: "2px", width: "100%", boxSizing: "border-box", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+            <div style={{ display: "flex", gap: "0.3rem", overflowX: "auto", paddingBottom: "2px", width: "100%", boxSizing: "border-box", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
               {ONGLETS.map(o => (
                 <button key={o.id} onClick={() => setOnglet(o.id)} style={{ padding: "0.35rem 0.75rem", borderRadius: 50, border: `1px solid ${onglet === o.id ? v.accent : "transparent"}`, background: onglet === o.id ? v.accentBg : "transparent", color: onglet === o.id ? v.accent : v.textMuted, fontWeight: onglet === o.id ? 700 : 400, cursor: "pointer", fontSize: "0.78rem", fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0 }}>{o.label}</button>
               ))}

@@ -866,7 +866,7 @@ function CropModal({ src, onConfirm, onCancel, v }) {
   );
 }
 
-function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t }) {
+function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t, streakActuel }) {
   const [nomTemp, setNomTemp] = useState(nom);
   const [prenomTemp, setPrenomTemp] = useState(prenom);
   const [cropSrc, setCropSrc] = useState(null);
@@ -933,10 +933,20 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
         <div style={{ fontWeight: 700, color: v.accent, marginBottom: "1rem" }}>{langue === "en" ? "📊 My stats" : langue === "es" ? "📊 Mis estadísticas" : "📊 Mes statistiques"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.7rem", marginBottom: "1rem" }}>
           <StatBox label={t.quizRealises} value={nbQuiz} color="#8e44ad" v={v} />
+          <StatBox label={"🔥 Streak"} value={streakActuel > 0 ? `${streakActuel} jour${streakActuel > 1 ? "s" : ""}` : "0 jour"} color="#e67e22" v={v} />
           <StatBox label={t.resumesCrees} value={nbResumes} color="#2e86ab" v={v} />
           <StatBox label={t.examensPrevus} value={nbExamens} color="#d4a017" v={v} />
           {moy !== null && <StatBox label={t.scoreMoyen} value={`${moy}%`} color="#27ae60" v={v} />}
         </div>
+        {streakActuel > 0 && (
+          <div style={{ textAlign: "center", padding: "0.7rem 1rem", borderRadius: 12, background: "rgba(230,126,34,0.12)", border: "1px solid rgba(230,126,34,0.3)", marginBottom: "0.8rem", fontSize: "0.88rem", color: "#e67e22", fontWeight: 600 }}>
+            {streakActuel >= 7 ? `🏆 ${streakActuel} jours d'affilée ! Tu es inarrêtable !` :
+             streakActuel >= 3 ? `🔥 ${streakActuel} jours d'affilée ! Continue comme ça !` :
+             streakActuel >= 2 ? `✨ ${streakActuel} jours d'affilée ! Ne casse pas ta streak !` :
+             `🌱 C'est parti ! Reviens demain pour commencer ta streak !`}
+          </div>
+        )}
+        {streakActuel === 0 && (langue === "fr" ? <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.82rem", color: "#e67e22", marginBottom: "0.5rem" }}>💤 Fais un quiz ou un résumé aujourd'hui pour démarrer ta streak !</div> : null)}
         {nbQuiz >= 2 && (
           <>
             <div style={{ fontWeight: 600, color: v.text, fontSize: "0.88rem", marginBottom: "0.8rem" }}>📈 Évolution de tes scores</div>
@@ -1421,7 +1431,33 @@ export default function App() {
   const t = TRADUCTIONS[langue];
   const s = theme === "dark";
   const v = getThemeVars(s);
-  const ajouterHistorique = (item) => setHistorique(prev => [...prev, item]);
+  const [streakData, setStreakData] = useLocalStorage("streakData", { count: 0, lastDate: null });
+
+  const ajouterHistorique = (item) => {
+    setHistorique(prev => [...prev, item]);
+    if (item.type === "quiz" || item.type === "resume") {
+      const today = new Date().toLocaleDateString("fr-FR");
+      setStreakData(prev => {
+        if (prev.lastDate === today) return prev;
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yest = yesterday.toLocaleDateString("fr-FR");
+        const newCount = prev.lastDate === yest ? prev.count + 1 : 1;
+        return { count: newCount, lastDate: today };
+      });
+    }
+  };
+
+  const getStreakActuel = () => {
+    if (!streakData.lastDate) return 0;
+    const today = new Date().toLocaleDateString("fr-FR");
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yest = yesterday.toLocaleDateString("fr-FR");
+    if (streakData.lastDate === today || streakData.lastDate === yest) return streakData.count;
+    return 0;
+  };
+  const streakActuel = getStreakActuel();
 
   const ONGLETS = [
     { id: "profil", label: "👤 " + t.profil },
@@ -1483,7 +1519,7 @@ export default function App() {
 
       {/* CONTENU */}
       <div style={{ padding: isMobile ? "0.75rem" : "2rem", maxWidth: "100%", overflowX: "hidden" }}>
-        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} />}
+        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} />}
         {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} />}
         {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}
         {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}

@@ -184,6 +184,161 @@ function getXpGain(type) {
 }
 // ====================================
 
+
+// ============ DONNÉES JEUX PAUSE ============
+const CAPITALES = [
+  ["France","Paris"],["Allemagne","Berlin"],["Espagne","Madrid"],["Italie","Rome"],["Portugal","Lisbonne"],
+  ["Belgique","Bruxelles"],["Pays-Bas","Amsterdam"],["Suisse","Berne"],["Autriche","Vienne"],["Pologne","Varsovie"],
+  ["Suède","Stockholm"],["Norvège","Oslo"],["Danemark","Copenhague"],["Finlande","Helsinki"],["Grèce","Athènes"],
+  ["Russie","Moscou"],["Ukraine","Kiev"],["Turquie","Ankara"],["Maroc","Rabat"],["Algérie","Alger"],
+  ["Tunisie","Tunis"],["Égypte","Le Caire"],["Sénégal","Dakar"],["Côte d'Ivoire","Yamoussoukro"],["Nigeria","Abuja"],
+  ["Afrique du Sud","Pretoria"],["Kenya","Nairobi"],["Éthiopie","Addis-Abeba"],["États-Unis","Washington"],
+  ["Canada","Ottawa"],["Mexique","Mexico"],["Brésil","Brasilia"],["Argentine","Buenos Aires"],["Chili","Santiago"],
+  ["Colombie","Bogota"],["Pérou","Lima"],["Japon","Tokyo"],["Chine","Pékin"],["Inde","New Delhi"],
+  ["Australie","Canberra"],["Corée du Sud","Séoul"],["Thaïlande","Bangkok"],["Vietnam","Hanoi"],["Indonésie","Jakarta"],
+  ["Pakistan","Islamabad"],["Arabie Saoudite","Riyad"],["Iran","Téhéran"],["Irak","Bagdad"],["Israël","Jérusalem"],
+];
+
+const FLASHCARDS = {
+  fr: {
+    en: [
+      ["Bonjour","Hello"],["Merci","Thank you"],["Au revoir","Goodbye"],["S'il vous plaît","Please"],
+      ["Oui","Yes"],["Non","No"],["Comment allez-vous ?","How are you?"],["Je ne comprends pas","I don't understand"],
+      ["Où est...?","Where is...?"],["Combien ça coûte ?","How much is it?"],["Je m'appelle...","My name is..."],
+      ["J'ai faim","I'm hungry"],["J'ai soif","I'm thirsty"],["Aide-moi","Help me"],["Je suis perdu","I'm lost"],
+    ],
+    es: [
+      ["Bonjour","Hola"],["Merci","Gracias"],["Au revoir","Adiós"],["S'il vous plaît","Por favor"],
+      ["Oui","Sí"],["Non","No"],["Comment allez-vous ?","¿Cómo está usted?"],["Je ne comprends pas","No entiendo"],
+      ["Où est...?","¿Dónde está...?"],["Combien ça coûte ?","¿Cuánto cuesta?"],["Je m'appelle...","Me llamo..."],
+      ["J'ai faim","Tengo hambre"],["J'ai soif","Tengo sed"],["Aide-moi","Ayúdame"],["Je suis perdu","Estoy perdido"],
+    ],
+    de: [
+      ["Bonjour","Guten Tag"],["Merci","Danke"],["Au revoir","Auf Wiedersehen"],["S'il vous plaît","Bitte"],
+      ["Oui","Ja"],["Non","Nein"],["Comment allez-vous ?","Wie geht es Ihnen?"],["Je ne comprends pas","Ich verstehe nicht"],
+      ["Où est...?","Wo ist...?"],["Combien ça coûte ?","Was kostet das?"],["Je m'appelle...","Ich heiße..."],
+      ["J'ai faim","Ich habe Hunger"],["J'ai soif","Ich habe Durst"],["Aide-moi","Hilf mir"],["Je suis perdu","Ich bin verloren"],
+    ],
+  },
+  en: {
+    fr: [
+      ["Hello","Bonjour"],["Thank you","Merci"],["Goodbye","Au revoir"],["Please","S'il vous plaît"],
+      ["Yes","Oui"],["No","Non"],["How are you?","Comment allez-vous ?"],["I don't understand","Je ne comprends pas"],
+      ["Where is...?","Où est...?"],["How much is it?","Combien ça coûte ?"],["My name is...","Je m'appelle..."],
+      ["I'm hungry","J'ai faim"],["I'm thirsty","J'ai soif"],["Help me","Aide-moi"],["I'm lost","Je suis perdu"],
+    ],
+    es: [
+      ["Hello","Hola"],["Thank you","Gracias"],["Goodbye","Adiós"],["Please","Por favor"],
+      ["Yes","Sí"],["No","No"],["How are you?","¿Cómo estás?"],["I don't understand","No entiendo"],
+      ["Where is...?","¿Dónde está...?"],["How much is it?","¿Cuánto cuesta?"],["My name is...","Me llamo..."],
+      ["I'm hungry","Tengo hambre"],["I'm thirsty","Tengo sed"],["Help me","Ayúdame"],["I'm lost","Estoy perdido"],
+    ],
+  },
+  es: {
+    fr: [
+      ["Hola","Bonjour"],["Gracias","Merci"],["Adiós","Au revoir"],["Por favor","S'il vous plaît"],
+      ["Sí","Oui"],["No","Non"],["¿Cómo estás?","Comment vas-tu ?"],["No entiendo","Je ne comprends pas"],
+      ["¿Dónde está...?","Où est...?"],["¿Cuánto cuesta?","Combien ça coûte ?"],["Me llamo...","Je m'appelle..."],
+      ["Tengo hambre","J'ai faim"],["Tengo sed","J'ai soif"],["Ayúdame","Aide-moi"],["Estoy perdido","Je suis perdu"],
+    ],
+    en: [
+      ["Hola","Hello"],["Gracias","Thank you"],["Adiós","Goodbye"],["Por favor","Please"],
+      ["Sí","Yes"],["No","No"],["¿Cómo estás?","How are you?"],["No entiendo","I don't understand"],
+      ["¿Dónde está...?","Where is...?"],["¿Cuánto cuesta?","How much is it?"],["Me llamo...","My name is..."],
+      ["Tengo hambre","I'm hungry"],["Tengo sed","I'm thirsty"],["Ayúdame","Help me"],["Estoy perdido","I'm lost"],
+    ],
+  },
+};
+
+const PHRASES_QUOTIDIEN = {
+  fr: {
+    en: [
+      ["Peux-tu répéter s'il te plaît ?","Could you repeat that please?"],
+      ["Je voudrais réserver une table","I'd like to book a table"],
+      ["À quelle heure ouvre le musée ?","What time does the museum open?"],
+      ["Pouvez-vous m'aider ?","Can you help me?"],
+      ["C'est trop cher","It's too expensive"],
+      ["Je cherche la gare","I'm looking for the train station"],
+      ["L'addition s'il vous plaît","The bill please"],
+      ["Je suis allergique à...","I'm allergic to..."],
+      ["Appelez une ambulance !","Call an ambulance!"],
+      ["Parlez-vous français ?","Do you speak French?"],
+    ],
+    es: [
+      ["Peux-tu répéter s'il te plaît ?","¿Puedes repetir por favor?"],
+      ["Je voudrais réserver une table","Quisiera reservar una mesa"],
+      ["À quelle heure ouvre le musée ?","¿A qué hora abre el museo?"],
+      ["Pouvez-vous m'aider ?","¿Puede ayudarme?"],
+      ["C'est trop cher","Es demasiado caro"],
+      ["Je cherche la gare","Estoy buscando la estación"],
+      ["L'addition s'il vous plaît","La cuenta por favor"],
+      ["Je suis allergique à...","Soy alérgico a..."],
+      ["Appelez une ambulance !","¡Llame a una ambulancia!"],
+      ["Parlez-vous français ?","¿Habla usted francés?"],
+    ],
+  },
+  en: {
+    fr: [
+      ["Could you repeat that please?","Peux-tu répéter s'il te plaît ?"],
+      ["I'd like to book a table","Je voudrais réserver une table"],
+      ["What time does the museum open?","À quelle heure ouvre le musée ?"],
+      ["Can you help me?","Pouvez-vous m'aider ?"],
+      ["It's too expensive","C'est trop cher"],
+      ["I'm looking for the train station","Je cherche la gare"],
+      ["The bill please","L'addition s'il vous plaît"],
+      ["I'm allergic to...","Je suis allergique à..."],
+      ["Call an ambulance!","Appelez une ambulance !"],
+      ["Do you speak English?","Parlez-vous anglais ?"],
+    ],
+    es: [
+      ["Could you repeat that please?","¿Puedes repetir por favor?"],
+      ["I'd like to book a table","Quisiera reservar una mesa"],
+      ["What time does the museum open?","¿A qué hora abre el museo?"],
+      ["Can you help me?","¿Puede ayudarme?"],
+      ["It's too expensive","Es demasiado caro"],
+      ["I'm looking for the train station","Estoy buscando la estación"],
+      ["The bill please","La cuenta por favor"],
+      ["I'm allergic to...","Soy alérgico a..."],
+      ["Call an ambulance!","¡Llame a una ambulancia!"],
+      ["Do you speak English?","¿Habla usted inglés?"],
+    ],
+  },
+  es: {
+    fr: [
+      ["¿Puedes repetir por favor?","Peux-tu répéter s'il te plaît ?"],
+      ["Quisiera reservar una mesa","Je voudrais réserver une table"],
+      ["¿A qué hora abre el museo?","À quelle heure ouvre le musée ?"],
+      ["¿Puede ayudarme?","Pouvez-vous m'aider ?"],
+      ["Es demasiado caro","C'est trop cher"],
+      ["Estoy buscando la estación","Je cherche la gare"],
+      ["La cuenta por favor","L'addition s'il vous plaît"],
+      ["Soy alérgico a...","Je suis allergique à..."],
+      ["¡Llame a una ambulancia!","Appelez une ambulance !"],
+      ["¿Habla usted español?","Parlez-vous espagnol ?"],
+    ],
+    en: [
+      ["¿Puedes repetir por favor?","Could you repeat that please?"],
+      ["Quisiera reservar una mesa","I'd like to book a table"],
+      ["¿A qué hora abre el museo?","What time does the museum open?"],
+      ["¿Puede ayudarme?","Can you help me?"],
+      ["Es demasiado caro","It's too expensive"],
+      ["Estoy buscando la estación","I'm looking for the train station"],
+      ["La cuenta por favor","The bill please"],
+      ["Soy alérgico a...","I'm allergic to..."],
+      ["¡Llame a una ambulancia!","Call an ambulance!"],
+      ["¿Habla usted español?","Do you speak Spanish?"],
+    ],
+  },
+};
+
+function normaliserReponse(str) {
+  return str.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[-\s]/g, "")
+    .trim();
+}
+// =============================================
+
 const BADGES_TRADUCTIONS = {
   premiere_revision: { fr: ["Première étincelle", "Tu as fait ta première révision !"], en: ["First spark", "You did your first study session!"], es: ["Primera chispa", "¡Hiciste tu primera revisión!"] },
   quiz_x5: { fr: ["Quiz addict", "5 quiz réalisés"], en: ["Quiz addict", "5 quizzes done"], es: ["Quiz addict", "5 quizzes realizados"] },
@@ -425,6 +580,19 @@ function GraphiqueScores({ historique, v, langue }) {
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.3rem" }}>
         {quiz.map((q, i) => <div key={i} style={{ fontSize: "0.65rem", color: v.textMuted, textAlign: "center", flex: 1 }}>{q.matiere.slice(0,3)}</div>)}
       </div>
+
+      {/* BOUTON PAUSE PREMIUM */}
+      {isPremium && (
+        <button
+          onClick={() => setPauseVisible(true)}
+          style={{ position: "fixed", bottom: "1.5rem", right: "1.5rem", width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #f6d365, #fda085)", border: "none", fontSize: "1.4rem", cursor: "pointer", boxShadow: "0 4px 16px rgba(253,160,133,0.5)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" }}
+          title="Espace pause"
+        >🎮</button>
+      )}
+
+      {/* MODALES */}
+      {pauseVisible && <EspacePause v={v} langue={langue} onClose={() => setPauseVisible(false)} />}
+      {showPremiumModal && <PremiumModal v={v} langue={langue} onClose={() => setShowPremiumModal(false)} onActivate={() => setIsPremium(true)} />}
     </div>
   );
 }
@@ -910,7 +1078,7 @@ function CropModal({ src, onConfirm, onCancel, v }) {
   );
 }
 
-function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t, streakActuel, xpActuel, xpRequis, niveau }) {
+function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t, streakActuel, xpActuel, xpRequis, niveau, isPremium, onPremium }) {
   const [nomTemp, setNomTemp] = useState(nom);
   const [prenomTemp, setPrenomTemp] = useState(prenom);
   const [cropSrc, setCropSrc] = useState(null);
@@ -958,6 +1126,17 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
         <div style={{ fontSize: "0.8rem", color: v.textMuted, marginTop: "0.2rem" }}>{langue === "en" ? "Click 📷 to change your photo" : langue === "es" ? "Haz clic en 📷 para cambiar tu foto" : "Clique sur 📷 pour changer ta photo"}</div>
       </Card>
 
+      {/* Badge premium */}
+      {isPremium ? (
+        <div style={{ textAlign: "center", padding: "0.6rem", marginBottom: "0.5rem" }}>
+          <span style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", borderRadius: 50, padding: "0.4rem 1.2rem", fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</span>
+        </div>
+      ) : (
+        <button onClick={onPremium} style={{ width: "100%", marginBottom: "0.5rem", background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>
+          ⭐ {langue === "en" ? "Upgrade to Premium" : langue === "es" ? "Obtener Premium" : "Passer en Premium"}
+        </button>
+      )}
+
       {/* Modifier profil */}
       <Card v={v}>
         <div style={{ fontWeight: 700, color: v.accent, marginBottom: "1rem" }}>{langue === "en" ? "👤 Edit my profile" : langue === "es" ? "👤 Editar mi perfil" : "👤 Modifier mon profil"}</div>
@@ -1003,10 +1182,16 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
           </div>
         </div>
         {nbQuiz >= 2 && (
-          <>
-            <div style={{ fontWeight: 600, color: v.text, fontSize: "0.88rem", marginBottom: "0.8rem" }}>📈 Évolution de tes scores</div>
-            <GraphiqueScores historique={historique} v={v} langue={langue} />
-          </>
+          isPremium ? (
+            <>
+              <div style={{ fontWeight: 600, color: v.text, fontSize: "0.88rem", marginBottom: "0.8rem" }}>📈 Évolution de tes scores</div>
+              <GraphiqueScores historique={historique} v={v} langue={langue} />
+            </>
+          ) : (
+            <div onClick={onPremium} style={{ cursor: "pointer", textAlign: "center", padding: "1.2rem", borderRadius: 16, background: "rgba(246,211,101,0.1)", border: "2px dashed #f6d365", color: "#e67e22", fontSize: "0.88rem" }}>
+              🔒 {langue === "en" ? "Score graph — Premium only" : langue === "es" ? "Gráfico de puntuaciones — Solo Premium" : "Graphique des scores — Premium uniquement"} <br/><span style={{ fontSize: "0.78rem", opacity: 0.8 }}>👆 {langue === "en" ? "Tap to upgrade" : langue === "es" ? "Toca para mejorar" : "Appuie pour activer"}</span>
+            </div>
+          )
         )}
         {nbQuiz === 0 && nbResumes === 0 && <div style={{ textAlign: "center", color: v.textMuted, fontSize: "0.85rem" }}>{langue === "en" ? "Do your first quiz or summary to see your stats! 🌿" : langue === "es" ? "Haz tu primer quiz o resumen para ver tus estadísticas! 🌿" : "Fais ton premier quiz ou résumé pour voir tes stats ! 🌿"}</div>}
       </Card>
@@ -1163,12 +1348,278 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
 }
 
 // ─── RÉSUMÉ ───────────────────────────────────────────────────────────────────
-function Resume({ t, v, ajouterHistorique, matieres, langue }) {
+
+// ============ COMPOSANTS JEUX ============
+
+function JeuCalculMental({ v, t, langue, onClose }) {
+  const [score, setScore] = useState(0);
+  const [question, setQuestion] = useState(null);
+  const [reponse, setReponse] = useState("");
+  const [feedback, setFeedback] = useState(null);
+  const [termine, setTermine] = useState(false);
+  const [nb, setNb] = useState(0);
+  const MAX = 10;
+
+  const genererQuestion = () => {
+    const ops = ["+", "-", "×"];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let a, b;
+    if (op === "+") { a = Math.floor(Math.random()*50)+1; b = Math.floor(Math.random()*50)+1; }
+    else if (op === "-") { a = Math.floor(Math.random()*50)+20; b = Math.floor(Math.random()*a)+1; }
+    else { a = Math.floor(Math.random()*12)+2; b = Math.floor(Math.random()*12)+2; }
+    const rep = op === "+" ? a+b : op === "-" ? a-b : a*b;
+    setQuestion({ texte: `${a} ${op} ${b} = ?`, reponse: rep });
+    setReponse(""); setFeedback(null);
+  };
+
+  useEffect(() => { genererQuestion(); }, []);
+
+  const valider = () => {
+    if (!question || reponse === "") return;
+    const correct = parseInt(reponse) === question.reponse;
+    setFeedback(correct ? "✅" : `❌ ${question.reponse}`);
+    if (correct) setScore(s => s+1);
+    setNb(n => n+1);
+    setTimeout(() => {
+      if (nb+1 >= MAX) setTermine(true);
+      else genererQuestion();
+    }, 900);
+  };
+
+  if (termine) return (
+    <div style={{ textAlign: "center", padding: "2rem" }}>
+      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{score >= 8 ? "🏆" : score >= 5 ? "👍" : "💪"}</div>
+      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: v.accent }}>{score}/{MAX}</div>
+      <div style={{ color: v.textMuted, marginBottom: "1.5rem" }}>{langue === "en" ? "Good job!" : langue === "es" ? "¡Bien hecho!" : "Bien joué !"}</div>
+      <button onClick={() => { setScore(0); setNb(0); setTermine(false); genererQuestion(); }} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
+    </div>
+  );
+
+  return (
+    <div style={{ textAlign: "center", padding: "1rem" }}>
+      <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>{nb+1}/{MAX} — Score: {score}</div>
+      <div style={{ fontSize: "2rem", fontWeight: 800, color: v.text, marginBottom: "1.2rem" }}>{question?.texte}</div>
+      {feedback && <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{feedback}</div>}
+      <input
+        type="number" value={reponse} onChange={e => setReponse(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && valider()}
+        placeholder="?" autoFocus
+        style={{ width: 100, textAlign: "center", fontSize: "1.4rem", padding: "0.5rem", borderRadius: 12, border: `2px solid ${v.accent}`, background: v.inputBg, color: v.text, fontFamily: "inherit", outline: "none" }}
+      />
+      <div style={{ marginTop: "1rem" }}>
+        <button onClick={valider} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Validate" : langue === "es" ? "Validar" : "Valider"}</button>
+      </div>
+    </div>
+  );
+}
+
+function JeuCapitales({ v, t, langue, onClose }) {
+  const [idx, setIdx] = useState(() => Math.floor(Math.random()*CAPITALES.length));
+  const [reponse, setReponse] = useState("");
+  const [feedback, setFeedback] = useState(null);
+  const [score, setScore] = useState(0);
+  const [nb, setNb] = useState(0);
+  const MAX = 10;
+  const [termine, setTermine] = useState(false);
+
+  const suivant = () => {
+    setIdx(Math.floor(Math.random()*CAPITALES.length));
+    setReponse(""); setFeedback(null);
+  };
+
+  const valider = () => {
+    if (!reponse.trim()) return;
+    const correct = normaliserReponse(reponse) === normaliserReponse(CAPITALES[idx][1]);
+    setFeedback(correct ? "✅" : `❌ ${CAPITALES[idx][1]}`);
+    if (correct) setScore(s => s+1);
+    setNb(n => n+1);
+    setTimeout(() => {
+      if (nb+1 >= MAX) setTermine(true);
+      else suivant();
+    }, 1000);
+  };
+
+  if (termine) return (
+    <div style={{ textAlign: "center", padding: "2rem" }}>
+      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{score >= 8 ? "🌍" : score >= 5 ? "👍" : "💪"}</div>
+      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: v.accent }}>{score}/{MAX}</div>
+      <div style={{ color: v.textMuted, marginBottom: "1.5rem" }}>{langue === "en" ? "Good job!" : langue === "es" ? "¡Bien hecho!" : "Bien joué !"}</div>
+      <button onClick={() => { setScore(0); setNb(0); setTermine(false); suivant(); }} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
+    </div>
+  );
+
+  return (
+    <div style={{ textAlign: "center", padding: "1rem" }}>
+      <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>{nb+1}/{MAX} — Score: {score}</div>
+      <div style={{ fontSize: "1.1rem", color: v.textMuted, marginBottom: "0.3rem" }}>{langue === "en" ? "Capital of" : langue === "es" ? "Capital de" : "Capitale de"}</div>
+      <div style={{ fontSize: "2rem", fontWeight: 800, color: v.text, marginBottom: "1.2rem" }}>🌍 {CAPITALES[idx][0]}</div>
+      {feedback && <div style={{ fontSize: "1.3rem", marginBottom: "0.5rem" }}>{feedback}</div>}
+      <input
+        value={reponse} onChange={e => setReponse(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && valider()}
+        placeholder={langue === "en" ? "Your answer..." : langue === "es" ? "Tu respuesta..." : "Ta réponse..."}
+        autoFocus
+        style={{ width: "80%", textAlign: "center", fontSize: "1.1rem", padding: "0.5rem", borderRadius: 12, border: `2px solid ${v.accent}`, background: v.inputBg, color: v.text, fontFamily: "inherit", outline: "none" }}
+      />
+      <div style={{ marginTop: "1rem" }}>
+        <button onClick={valider} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Validate" : langue === "es" ? "Validar" : "Valider"}</button>
+      </div>
+    </div>
+  );
+}
+
+function JeuFlashcards({ v, langue, onClose, type }) {
+  const langues = Object.keys(FLASHCARDS[langue] || FLASHCARDS["fr"]);
+  const [langCible, setLangCible] = useState(langues[0]);
+  const data = type === "phrases" ? (PHRASES_QUOTIDIEN[langue]?.[langCible] || PHRASES_QUOTIDIEN["fr"][langCible] || []) : (FLASHCARDS[langue]?.[langCible] || FLASHCARDS["fr"][langCible] || []);
+  const [idx, setIdx] = useState(0);
+  const [retourne, setRetourne] = useState(false);
+  const [sus, setSus] = useState(0);
+  const [pas, setPas] = useState(0);
+
+  const langNoms = { fr: "Français", en: "English", es: "Español", de: "Deutsch" };
+
+  const suivant = (ok) => {
+    if (ok) setSus(s => s+1); else setPas(p => p+1);
+    setRetourne(false);
+    setTimeout(() => setIdx(i => (i+1) % data.length), 150);
+  };
+
+  if (!data.length) return <div style={{ textAlign: "center", color: v.textMuted, padding: "2rem" }}>Pas de données disponibles</div>;
+
+  return (
+    <div style={{ textAlign: "center", padding: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+        {langues.map(l => (
+          <button key={l} onClick={() => { setLangCible(l); setIdx(0); setRetourne(false); }}
+            style={{ padding: "0.3rem 0.8rem", borderRadius: 50, border: `1px solid ${langCible === l ? v.accent : v.inputBorder}`, background: langCible === l ? v.accentBg : "transparent", color: langCible === l ? v.accent : v.textMuted, cursor: "pointer", fontSize: "0.8rem", fontFamily: "inherit" }}>
+            {langNoms[l] || l}
+          </button>
+        ))}
+      </div>
+      <div style={{ fontSize: "0.8rem", color: v.textMuted, marginBottom: "0.8rem" }}>✅ {sus} / ❌ {pas}</div>
+      <div
+        onClick={() => setRetourne(r => !r)}
+        style={{ cursor: "pointer", minHeight: 120, background: retourne ? v.accentBg : v.cardBg, border: `2px solid ${v.accent}`, borderRadius: 20, padding: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: 600, color: retourne ? v.accent : v.text, transition: "all 0.3s", marginBottom: "1rem" }}>
+        {retourne ? data[idx][1] : data[idx][0]}
+      </div>
+      <div style={{ fontSize: "0.78rem", color: v.textMuted, marginBottom: "1rem" }}>👆 {langue === "en" ? "Tap to reveal" : langue === "es" ? "Toca para revelar" : "Appuie pour retourner"}</div>
+      {retourne && (
+        <div style={{ display: "flex", gap: "0.8rem", justifyContent: "center" }}>
+          <button onClick={() => suivant(false)} style={{ background: "#e74c3c", color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.3rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>❌ {langue === "en" ? "Wrong" : langue === "es" ? "Mal" : "Raté"}</button>
+          <button onClick={() => suivant(true)} style={{ background: "#27ae60", color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.3rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>✅ {langue === "en" ? "Got it" : langue === "es" ? "Lo sé" : "Je savais"}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function PremiumModal({ v, langue, onClose, onActivate }) {
+  const [code, setCode] = useState("");
+  const [erreur, setErreur] = useState(false);
+  const CODE_SECRET = "MINDUP2024";
+  const prix = langue === "en" ? "$3.29/mo" : langue === "es" ? "2,99€/mes" : "2,99€/mois";
+
+  const tenter = () => {
+    if (code.trim().toUpperCase() === CODE_SECRET) {
+      onActivate();
+      onClose();
+    } else {
+      setErreur(true);
+      setTimeout(() => setErreur(false), 2000);
+    }
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+      <div style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 400, boxShadow: "0 16px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", padding: "2rem", textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>⭐</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff" }}>Mindup Premium</div>
+          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.9rem", marginTop: "0.3rem" }}>{prix}</div>
+        </div>
+        <div style={{ padding: "1.5rem" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            {["✅ Quiz & résumés illimités", "✅ Graphique d'évolution", "✅ Pomodoro", "✅ Espace pause 🎮", "✅ Badge premium"].map(f => (
+              <div key={f} style={{ fontSize: "0.88rem", color: v.text, marginBottom: "0.4rem" }}>{f}</div>
+            ))}
+          </div>
+          <div style={{ borderTop: `1px solid ${v.cardBorder}`, paddingTop: "1rem" }}>
+            <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>
+              {langue === "en" ? "Have a code?" : langue === "es" ? "¿Tienes un código?" : "Tu as un code ?"}
+            </div>
+            <input
+              value={code} onChange={e => setCode(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && tenter()}
+              placeholder={langue === "en" ? "Enter your code" : langue === "es" ? "Introduce tu código" : "Entre ton code"}
+              style={{ width: "100%", padding: "0.6rem 1rem", borderRadius: 12, border: `2px solid ${erreur ? "#e74c3c" : v.inputBorder}`, background: v.inputBg, color: v.text, fontFamily: "inherit", fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
+            />
+            {erreur && <div style={{ color: "#e74c3c", fontSize: "0.8rem", marginTop: "0.3rem" }}>❌ Code invalide</div>}
+            <button onClick={tenter} style={{ width: "100%", marginTop: "0.8rem", background: "linear-gradient(135deg, #f6d365, #fda085)", color: "#fff", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.95rem" }}>
+              {langue === "en" ? "Activate" : langue === "es" ? "Activar" : "Activer"}
+            </button>
+          </div>
+          <button onClick={onClose} style={{ width: "100%", marginTop: "0.5rem", background: "transparent", border: "none", color: v.textMuted, cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem" }}>
+            {langue === "en" ? "Maybe later" : langue === "es" ? "Quizás después" : "Plus tard"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EspacePause({ v, langue, onClose }) {
+  const [jeu, setJeu] = useState(null);
+  const jeux = [
+    { id: "calcul", emoji: "🔢", label: langue === "en" ? "Mental math" : langue === "es" ? "Cálculo mental" : "Calcul mental" },
+    { id: "capitales", emoji: "🌍", label: langue === "en" ? "World capitals" : langue === "es" ? "Capitales del mundo" : "Capitales du monde" },
+    { id: "flashcards", emoji: "🃏", label: langue === "en" ? "Vocabulary" : langue === "es" ? "Vocabulario" : "Vocabulaire" },
+    { id: "phrases", emoji: "💬", label: langue === "en" ? "Daily phrases" : langue === "es" ? "Frases cotidianas" : "Phrases du quotidien" },
+  ];
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+      <div style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 16px 60px rgba(0,0,0,0.3)" }}>
+        <div style={{ padding: "1.2rem 1.5rem", borderBottom: `1px solid ${v.cardBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ fontWeight: 800, fontSize: "1.1rem", color: v.accent }}>🎮 {langue === "en" ? "Pause zone" : langue === "es" ? "Zona pausa" : "Espace pause"}</div>
+          <button onClick={onClose} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: v.textMuted }}>✕</button>
+        </div>
+        <div style={{ padding: "1.2rem" }}>
+          {!jeu ? (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+              {jeux.map(j => (
+                <button key={j.id} onClick={() => setJeu(j.id)}
+                  style={{ background: v.accentBg, border: `1px solid ${v.cardBorder}`, borderRadius: 16, padding: "1.2rem 0.8rem", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
+                  <div style={{ fontSize: "2rem", marginBottom: "0.4rem" }}>{j.emoji}</div>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 700, color: v.text }}>{j.label}</div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <>
+              <button onClick={() => setJeu(null)} style={{ background: "transparent", border: "none", color: v.textMuted, cursor: "pointer", fontSize: "0.85rem", marginBottom: "1rem", fontFamily: "inherit" }}>← {langue === "en" ? "Back" : langue === "es" ? "Volver" : "Retour"}</button>
+              {jeu === "calcul" && <JeuCalculMental v={v} langue={langue} onClose={() => setJeu(null)} />}
+              {jeu === "capitales" && <JeuCapitales v={v} langue={langue} onClose={() => setJeu(null)} />}
+              {jeu === "flashcards" && <JeuFlashcards v={v} langue={langue} onClose={() => setJeu(null)} type="flashcards" />}
+              {jeu === "phrases" && <JeuFlashcards v={v} langue={langue} onClose={() => setJeu(null)} type="phrases" />}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================
+
+function Resume({ t, v, ajouterHistorique, matieres, langue, peutGenerer, isPremium, usageAujourdhui, limiteJour, onPremium }) {
   const [texte, setTexte] = useState("");
   const [matiere, setMatiere] = useState(matieres[0] || "Maths");
   const [resume, setResume] = useState("");
   const [loading, setLoading] = useState(false);
   const generer = async () => {
+    if (!peutGenerer) { onPremium && onPremium(); return; }
     if (!texte.trim()) return;
     setLoading(true); setResume("");
     try {
@@ -1178,6 +1629,15 @@ function Resume({ t, v, ajouterHistorique, matieres, langue }) {
     } catch { setResume(t.erreur); }
     setLoading(false);
   };
+
+  const limiteBannerR = !isPremium && (
+    <div style={{ padding: "0.6rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.12)" : "rgba(253,160,133,0.12)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+      <span style={{ color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
+        {usageAujourdhui >= limiteJour ? "🔒 Limite atteinte" : `📊 ${usageAujourdhui}/${limiteJour} aujourd'hui`}
+      </span>
+      <button onClick={onPremium} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.3rem 0.8rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</button>
+    </div>
+  );
 
   return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
@@ -1203,7 +1663,7 @@ function Resume({ t, v, ajouterHistorique, matieres, langue }) {
 }
 
 // ─── QUIZ ─────────────────────────────────────────────────────────────────────
-function Quiz({ t, v, ajouterHistorique, matieres, langue }) {
+function Quiz({ t, v, ajouterHistorique, matieres, langue, peutGenerer, isPremium, usageAujourdhui, limiteJour, onPremium }) {
   const [texte, setTexte] = useState("");
   const [matiere, setMatiere] = useState(matieres[0] || "Maths");
   const [questions, setQuestions] = useState([]);
@@ -1215,6 +1675,7 @@ function Quiz({ t, v, ajouterHistorique, matieres, langue }) {
   const [showPointsFaibles, setShowPointsFaibles] = useState(false);
 
   const generer = async () => {
+    if (!peutGenerer) { onPremium && onPremium(); return; }
     if (!texte.trim()) return;
     if (mode === "trous") { setShowTrous(true); return; }
     setLoading(true); setQuestions([]); setReponses({}); setValide(false);
@@ -1276,6 +1737,15 @@ ${texte.slice(0, 4000)}`);
           <SelectStyle v={v} value={matiere} onChange={e => setMatiere(e.target.value)} style={{ marginBottom: "0.8rem" }}>
             {matieres.map(m => <option key={m} value={m}>{m}</option>)}
           </SelectStyle>
+  const limiteBannerQ = !isPremium && (
+    <div style={{ padding: "0.6rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.12)" : "rgba(253,160,133,0.12)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+      <span style={{ color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
+        {usageAujourdhui >= limiteJour ? "🔒 Limite atteinte" : `📊 ${usageAujourdhui}/${limiteJour} aujourd'hui`}
+      </span>
+      <button onClick={onPremium} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.3rem 0.8rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</button>
+    </div>
+  );
+
           <ZoneSaisie texte={texte} setTexte={setTexte} placeholder={t.collerCours} t={t} v={v} />
 
           {/* Mode selector */}
@@ -1487,6 +1957,17 @@ export default function App() {
   const s = theme === "dark";
   const v = getThemeVars(s);
   const [streakData, setStreakData] = useLocalStorage("streakData", { count: 0, lastDate: null });
+  const [isPremium, setIsPremium] = useLocalStorage("isPremium", false);
+  const [pauseVisible, setPauseVisible] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+
+  const LIMITE_JOUR = 3;
+  const getUsageAujourdhui = () => {
+    const today = new Date().toLocaleDateString("fr-FR");
+    return historique.filter(h => h.date === today && (h.type === "quiz" || h.type === "resume" || h.type === "trous")).length;
+  };
+  const usageAujourdhui = getUsageAujourdhui();
+  const peutGenerer = isPremium || usageAujourdhui < LIMITE_JOUR;
   const [xpTotal, setXpTotal] = useLocalStorage("xpTotal", 0);
   const [levelUpAnim, setLevelUpAnim] = useState(null); // { niveau }
 
@@ -1571,9 +2052,13 @@ export default function App() {
                   {prenom && <div style={{ fontSize: "0.72rem", color: v.textMuted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.bonjour}, {prenom} 🌸</div>}
                 </div>
               </div>
-              {!pomodoroVisible
-                ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.3rem 0.6rem", color: v.textMuted, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit", flexShrink: 0 }}>⏱️</button>
-                : <MiniPomodoro v={v} visible={true} onClose={() => setPomodoroVisible(false)} />}
+              {isPremium ? (
+                !pomodoroVisible
+                  ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.3rem 0.6rem", color: v.textMuted, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit", flexShrink: 0 }}>⏱️</button>
+                  : <MiniPomodoro v={v} visible={true} onClose={() => setPomodoroVisible(false)} />
+              ) : (
+                <button onClick={() => setShowPremiumModal(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.3rem 0.6rem", color: v.textMuted, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit", flexShrink: 0, opacity: 0.6 }}>🔒</button>
+              )}
             </div>
             <div style={{ display: "flex", gap: "0.3rem", overflowX: "auto", paddingBottom: "2px", width: "100%", boxSizing: "border-box", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }}>
               {ONGLETS.map(o => (
@@ -1596,9 +2081,13 @@ export default function App() {
               {ONGLETS.map(o => (
                 <button key={o.id} onClick={() => setOnglet(o.id)} style={{ padding: "0.45rem 1rem", borderRadius: 50, border: `1px solid ${onglet === o.id ? v.accent : "transparent"}`, background: onglet === o.id ? v.accentBg : "transparent", color: onglet === o.id ? v.accent : v.textMuted, fontWeight: onglet === o.id ? 700 : 400, cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit" }}>{o.label}</button>
               ))}
-              {!pomodoroVisible
-                ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.45rem 0.9rem", color: v.textMuted, cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit" }}>⏱️ Pomodoro</button>
-                : <MiniPomodoro v={v} visible={true} onClose={() => setPomodoroVisible(false)} />}
+              {isPremium ? (
+                !pomodoroVisible
+                  ? <button onClick={() => setPomodoroVisible(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.45rem 0.9rem", color: v.textMuted, cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit" }}>⏱️ Pomodoro</button>
+                  : <MiniPomodoro v={v} visible={true} onClose={() => setPomodoroVisible(false)} />
+              ) : (
+                <button onClick={() => setShowPremiumModal(true)} style={{ background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.45rem 0.9rem", color: v.textMuted, cursor: "pointer", fontSize: "0.85rem", fontFamily: "inherit", opacity: 0.6 }}>🔒 Pomodoro</button>
+              )}
             </div>
           </div>
         )}
@@ -1606,10 +2095,10 @@ export default function App() {
 
       {/* CONTENU */}
       <div style={{ padding: isMobile ? "0.75rem" : "2rem", maxWidth: "100%", overflowX: "hidden" }}>
-        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} xpActuel={xpActuel} xpRequis={xpRequis} niveau={niveau} />}
+        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} xpActuel={xpActuel} xpRequis={xpRequis} niveau={niveau} isPremium={isPremium} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} />}
-        {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}
-        {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}
+        {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
+        {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "historique"&& <Historique historique={historique} setHistorique={setHistorique} t={t} v={v} />}
         {onglet === "reglages"  && <Reglages theme={theme} setTheme={setTheme} langue={langue} setLangue={setLangue} matieres={matieres} setMatieres={setMatieres} t={t} v={v} />}
       </div>

@@ -24,6 +24,12 @@ const TRADUCTIONS = {
     evolutionScores: "📈 Évolution de tes scores", modifierProfil: "👤 Modifier mon profil", mesStats: "📊 Mes statistiques",
     mesBadges: "🏅 Mes badges", debloques: "débloqués", predictionNotes: "🎯 Prédiction de notes",
     estimeeDepuis: "Estimé depuis tes quiz, par matière", prenom: "Prénom", nom: "Nom", sauvegarderProfil: "💾 Sauvegarder",
+    streakJour: "jour", streakJours: "jours", streakZero: "💤 Fais un quiz ou un résumé aujourd'hui pour démarrer ta streak !",
+    streakMsg1: "🌱 C'est parti ! Reviens demain pour commencer ta streak !",
+    streakMsg2: "✨ {n} jours d'affilée ! Ne casse pas ta streak !",
+    streakMsg3: "🔥 {n} jours d'affilée ! Continue comme ça !",
+    streakMsg7: "🏆 {n} jours d'affilée ! Tu es inarrêtable !",
+    niveauLabel: "Niveau", xpLabel: "XP",
     clickPhoto: "Clique sur 📷 pour changer ta photo", debloque: "DÉBLOQUÉ ✓", surVingt: "/20 estimé",
     bonneReponse: "bonne réponse", bonnesReponses: "bonnes réponses", sur: "sur",
     excellent: "Excellent ! 🏆", bienJoue: "Bien joué ! 🌸", continuer: "Continue à réviser 💪",
@@ -53,6 +59,12 @@ const TRADUCTIONS = {
     voirPlus: "View", reduire: "Collapse", supprimer: "Delete",
     quizRealises: "Quizzes done", resumesCrees: "Summaries created", examensPrevus: "Upcoming exams", scoreMoyen: "Average score",
     evolutionScores: "📈 Score evolution", modifierProfil: "👤 Edit my profile", mesStats: "📊 My stats",
+    streakJour: "day", streakJours: "days", streakZero: "💤 Do a quiz or summary today to start your streak!",
+    streakMsg1: "🌱 Let's go! Come back tomorrow to start your streak!",
+    streakMsg2: "✨ {n} days in a row! Don't break your streak!",
+    streakMsg3: "🔥 {n} days in a row! Keep it up!",
+    streakMsg7: "🏆 {n} days in a row! You're unstoppable!",
+    niveauLabel: "Level", xpLabel: "XP",
     mesBadges: "🏅 My badges", debloques: "unlocked", predictionNotes: "🎯 Grade predictions",
     estimeeDepuis: "Estimated from your quizzes, by subject", prenom: "First name", nom: "Last name", sauvegarderProfil: "💾 Save",
     clickPhoto: "Click 📷 to change your photo", debloque: "UNLOCKED ✓", surVingt: "/20 estimated",
@@ -84,6 +96,12 @@ const TRADUCTIONS = {
     voirPlus: "Ver", reduire: "Reducir", supprimer: "Eliminar",
     quizRealises: "Quizzes realizados", resumesCrees: "Resúmenes creados", examensPrevus: "Exámenes previstos", scoreMoyen: "Puntuación media",
     evolutionScores: "📈 Evolución de puntuaciones", modifierProfil: "👤 Editar mi perfil", mesStats: "📊 My stats",
+    streakJour: "día", streakJours: "días", streakZero: "💤 ¡Haz un quiz o resumen hoy para empezar tu racha!",
+    streakMsg1: "🌱 ¡Vamos! ¡Vuelve mañana para empezar tu racha!",
+    streakMsg2: "✨ ¡{n} días seguidos! ¡No rompas tu racha!",
+    streakMsg3: "🔥 ¡{n} días seguidos! ¡Sigue así!",
+    streakMsg7: "🏆 ¡{n} días seguidos! ¡Eres imparable!",
+    niveauLabel: "Nivel", xpLabel: "XP",
     mesBadges: "🏅 Mis insignias", debloques: "desbloqueadas", predictionNotes: "🎯 Predicción de notas",
     estimeeDepuis: "Estimado a partir de tus quizzes, por asignatura", prenom: "Nombre", nom: "Apellido", sauvegarderProfil: "💾 Guardar",
     clickPhoto: "Toca 📷 para cambiar tu foto", debloque: "DESBLOQUEADO ✓", surVingt: "/20 estimado",
@@ -140,6 +158,32 @@ function useLocalStorage(key, defaultValue) {
 }
 
 // ─── BADGES ──────────────────────────────────────────────────────────────────
+// ============ XP SYSTEM ============
+function getXpPourNiveau(niveau) {
+  if (niveau < 10) return 100;
+  if (niveau < 35) return 150;
+  if (niveau < 75) return 200;
+  return 225;
+}
+function getNiveauFromXpTotal(xpTotal) {
+  let niveau = 1;
+  let xpRestant = xpTotal;
+  while (true) {
+    const requis = getXpPourNiveau(niveau);
+    if (xpRestant < requis) break;
+    xpRestant -= requis;
+    niveau++;
+  }
+  return { niveau, xpActuel: xpRestant, xpRequis: getXpPourNiveau(niveau) };
+}
+function getXpGain(type) {
+  if (type === "quiz") return 20;
+  if (type === "trous") return 25;
+  if (type === "resume") return 15;
+  return 0;
+}
+// ====================================
+
 const BADGES_TRADUCTIONS = {
   premiere_revision: { fr: ["Première étincelle", "Tu as fait ta première révision !"], en: ["First spark", "You did your first study session!"], es: ["Primera chispa", "¡Hiciste tu primera revisión!"] },
   quiz_x5: { fr: ["Quiz addict", "5 quiz réalisés"], en: ["Quiz addict", "5 quizzes done"], es: ["Quiz addict", "5 quizzes realizados"] },
@@ -452,7 +496,7 @@ function PredictionNotes({ historique, v, langue }) {
 }
 
 // ─── TEXTE À TROUS ────────────────────────────────────────────────────────────
-function TexteATrous({ texte, matiere, v, t, onClose, langue }) {
+function TexteATrous({ texte, matiere, v, t, onClose, langue, ajouterHistorique }) {
   const [trous, setTrous] = useState(null);
   const [reponses, setReponses] = useState({});
   const [valide, setValide] = useState(false);
@@ -568,7 +612,7 @@ ${texte.slice(0, 3000)}`);
       </div>
 
       {!valide ? (
-        <Btn v={v} full onClick={() => setValide(true)}>{langue === "en" ? "✅ Check my answers" : langue === "es" ? "✅ Verificar mis respuestas" : "✅ Vérifier mes réponses"}</Btn>
+        <Btn v={v} full onClick={() => { setValide(true); if (ajouterHistorique) ajouterHistorique({ type: "trous", matiere, date: new Date().toLocaleDateString("fr-FR") }); }}>{langue === "en" ? "✅ Check my answers" : langue === "es" ? "✅ Verificar mis respuestas" : "✅ Vérifier mes réponses"}</Btn>
       ) : (
         <div>
           <div style={{ textAlign: "center", background: v.cardBg, border: `1px solid ${v.cardBorder}`, borderRadius: 16, padding: "1rem", marginBottom: "0.8rem" }}>
@@ -866,7 +910,7 @@ function CropModal({ src, onConfirm, onCancel, v }) {
   );
 }
 
-function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t, streakActuel }) {
+function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, examens, v, langue, t, streakActuel, xpActuel, xpRequis, niveau }) {
   const [nomTemp, setNomTemp] = useState(nom);
   const [prenomTemp, setPrenomTemp] = useState(prenom);
   const [cropSrc, setCropSrc] = useState(null);
@@ -933,20 +977,31 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
         <div style={{ fontWeight: 700, color: v.accent, marginBottom: "1rem" }}>{langue === "en" ? "📊 My stats" : langue === "es" ? "📊 Mis estadísticas" : "📊 Mes statistiques"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.7rem", marginBottom: "1rem" }}>
           <StatBox label={t.quizRealises} value={nbQuiz} color="#8e44ad" v={v} />
-          <StatBox label={"🔥 Streak"} value={streakActuel > 0 ? `${streakActuel} jour${streakActuel > 1 ? "s" : ""}` : "0 jour"} color="#e67e22" v={v} />
+          <StatBox label={"🔥 Streak"} value={streakActuel > 0 ? `${streakActuel} ${streakActuel > 1 ? t.streakJours : t.streakJour}` : `0 ${t.streakJour}`} color="#e67e22" v={v} />
+          <StatBox label={`⭐ ${t.niveauLabel}`} value={`${t.niveauLabel} ${niveau}`} color="#f39c12" v={v} />
           <StatBox label={t.resumesCrees} value={nbResumes} color="#2e86ab" v={v} />
           <StatBox label={t.examensPrevus} value={nbExamens} color="#d4a017" v={v} />
           {moy !== null && <StatBox label={t.scoreMoyen} value={`${moy}%`} color="#27ae60" v={v} />}
         </div>
         {streakActuel > 0 && (
           <div style={{ textAlign: "center", padding: "0.7rem 1rem", borderRadius: 12, background: "rgba(230,126,34,0.12)", border: "1px solid rgba(230,126,34,0.3)", marginBottom: "0.8rem", fontSize: "0.88rem", color: "#e67e22", fontWeight: 600 }}>
-            {streakActuel >= 7 ? `🏆 ${streakActuel} jours d'affilée ! Tu es inarrêtable !` :
-             streakActuel >= 3 ? `🔥 ${streakActuel} jours d'affilée ! Continue comme ça !` :
-             streakActuel >= 2 ? `✨ ${streakActuel} jours d'affilée ! Ne casse pas ta streak !` :
-             `🌱 C'est parti ! Reviens demain pour commencer ta streak !`}
+            {streakActuel >= 7 ? t.streakMsg7.replace("{n}", streakActuel) :
+             streakActuel >= 3 ? t.streakMsg3.replace("{n}", streakActuel) :
+             streakActuel >= 2 ? t.streakMsg2.replace("{n}", streakActuel) :
+             t.streakMsg1}
           </div>
         )}
-        {streakActuel === 0 && (langue === "fr" ? <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.82rem", color: "#e67e22", marginBottom: "0.5rem" }}>💤 Fais un quiz ou un résumé aujourd'hui pour démarrer ta streak !</div> : null)}
+        {streakActuel === 0 && <div style={{ textAlign: "center", padding: "0.5rem", fontSize: "0.82rem", color: "#e67e22", marginBottom: "0.5rem" }}>{t.streakZero}</div>}
+        {/* XP Bar */}
+        <div style={{ marginBottom: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.3rem" }}>
+            <span>⭐ {t.niveauLabel} {niveau}</span>
+            <span>{xpActuel}{t.xpLabel}/{xpRequis}{t.xpLabel}</span>
+          </div>
+          <div style={{ height: 10, borderRadius: 99, background: v.inputBorder, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${Math.round(xpActuel / xpRequis * 100)}%`, background: "linear-gradient(90deg, #f6d365, #fda085)", borderRadius: 99, transition: "width 0.6s ease" }} />
+          </div>
+        </div>
         {nbQuiz >= 2 && (
           <>
             <div style={{ fontWeight: 600, color: v.text, fontSize: "0.88rem", marginBottom: "0.8rem" }}>📈 Évolution de tes scores</div>
@@ -1200,7 +1255,7 @@ ${texte.slice(0, 4000)}`);
   if (showTrous) return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
       <Card v={v}>
-        <TexteATrous texte={texte} matiere={matiere} v={v} t={t} onClose={() => setShowTrous(false)} langue={langue} />
+        <TexteATrous texte={texte} matiere={matiere} v={v} t={t} onClose={() => setShowTrous(false)} langue={langue} ajouterHistorique={ajouterHistorique} />
       </Card>
     </div>
   );
@@ -1432,10 +1487,13 @@ export default function App() {
   const s = theme === "dark";
   const v = getThemeVars(s);
   const [streakData, setStreakData] = useLocalStorage("streakData", { count: 0, lastDate: null });
+  const [xpTotal, setXpTotal] = useLocalStorage("xpTotal", 0);
+  const [levelUpAnim, setLevelUpAnim] = useState(null); // { niveau }
 
   const ajouterHistorique = (item) => {
     setHistorique(prev => [...prev, item]);
-    if (item.type === "quiz" || item.type === "resume") {
+    // Streak
+    if (item.type === "quiz" || item.type === "resume" || item.type === "trous") {
       const today = new Date().toLocaleDateString("fr-FR");
       setStreakData(prev => {
         if (prev.lastDate === today) return prev;
@@ -1444,6 +1502,22 @@ export default function App() {
         const yest = yesterday.toLocaleDateString("fr-FR");
         const newCount = prev.lastDate === yest ? prev.count + 1 : 1;
         return { count: newCount, lastDate: today };
+      });
+    }
+    // XP
+    const gain = getXpGain(item.type);
+    if (gain > 0) {
+      setXpTotal(prev => {
+        const ancienNiveau = getNiveauFromXpTotal(prev).niveau;
+        const newXp = prev + gain;
+        const nouveauNiveau = getNiveauFromXpTotal(newXp).niveau;
+        if (nouveauNiveau > ancienNiveau) {
+          setTimeout(() => {
+            setLevelUpAnim({ niveau: nouveauNiveau });
+            setTimeout(() => setLevelUpAnim(null), 3000);
+          }, 300);
+        }
+        return newXp;
       });
     }
   };
@@ -1468,8 +1542,21 @@ export default function App() {
     { id: "reglages", label: t.reglages },
   ];
 
+  const { niveau, xpActuel, xpRequis } = getNiveauFromXpTotal(xpTotal);
+
   return (
     <div style={{ minHeight: "100vh", background: v.bg, backgroundImage: v.bgImage, backgroundRepeat: "repeat", backgroundSize: v.bgSize, color: v.text, fontFamily: "'Georgia', serif", overflowX: "hidden", width: "100%", maxWidth: "100vw", position: "relative" }}>
+      {/* LEVEL UP ANIMATION */}
+      {levelUpAnim && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+          <div style={{ background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", borderRadius: 24, padding: "2rem 3rem", textAlign: "center", boxShadow: "0 8px 40px rgba(253,160,133,0.5)", animation: "levelUpPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275)" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🎉</div>
+            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>{t.niveauLabel} {levelUpAnim.niveau} !</div>
+            <div style={{ fontSize: "1rem", color: "rgba(255,255,255,0.9)", marginTop: "0.3rem" }}>Tu montes de niveau !</div>
+          </div>
+          <style>{`@keyframes levelUpPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }`}</style>
+        </div>
+      )}
       {/* NAVBAR */}
       <div style={{ background: v.navBg, backdropFilter: "blur(12px)", borderBottom: `1px solid ${v.cardBorder}`, padding: isMobile ? "0.8rem 1rem" : "0.9rem 2rem", position: "sticky", top: 0, zIndex: 100, overflowX: "hidden", width: "100%", maxWidth: "100vw", boxSizing: "border-box" }}>
         {isMobile ? (
@@ -1519,7 +1606,7 @@ export default function App() {
 
       {/* CONTENU */}
       <div style={{ padding: isMobile ? "0.75rem" : "2rem", maxWidth: "100%", overflowX: "hidden" }}>
-        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} />}
+        {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} xpActuel={xpActuel} xpRequis={xpRequis} niveau={niveau} />}
         {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} />}
         {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}
         {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} />}

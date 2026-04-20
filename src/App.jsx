@@ -581,18 +581,6 @@ function GraphiqueScores({ historique, v, langue }) {
         {quiz.map((q, i) => <div key={i} style={{ fontSize: "0.65rem", color: v.textMuted, textAlign: "center", flex: 1 }}>{q.matiere.slice(0,3)}</div>)}
       </div>
 
-      {/* BOUTON PAUSE PREMIUM */}
-      {isPremium && (
-        <button
-          onClick={() => setPauseVisible(true)}
-          style={{ position: "fixed", bottom: "1.5rem", right: "1.5rem", width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #f6d365, #fda085)", border: "none", fontSize: "1.4rem", cursor: "pointer", boxShadow: "0 4px 16px rgba(253,160,133,0.5)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" }}
-          title="Espace pause"
-        >🎮</button>
-      )}
-
-      {/* MODALES */}
-      {pauseVisible && <EspacePause v={v} langue={langue} onClose={() => setPauseVisible(false)} />}
-      {showPremiumModal && <PremiumModal v={v} langue={langue} onClose={() => setShowPremiumModal(false)} onActivate={() => setIsPremium(true)} />}
     </div>
   );
 }
@@ -2102,6 +2090,19 @@ export default function App() {
         {onglet === "historique"&& <Historique historique={historique} setHistorique={setHistorique} t={t} v={v} />}
         {onglet === "reglages"  && <Reglages theme={theme} setTheme={setTheme} langue={langue} setLangue={setLangue} matieres={matieres} setMatieres={setMatieres} t={t} v={v} />}
       </div>
+
+      {/* BOUTON PAUSE PREMIUM */}
+      {isPremium && (
+        <button
+          onClick={() => setPauseVisible(true)}
+          style={{ position: "fixed", bottom: "1.5rem", right: "1.5rem", width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #f6d365, #fda085)", border: "none", fontSize: "1.4rem", cursor: "pointer", boxShadow: "0 4px 16px rgba(253,160,133,0.5)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" }}
+          title="Espace pause"
+        >🎮</button>
+      )}
+
+      {/* MODALES */}
+      {pauseVisible && <EspacePause v={v} langue={langue} onClose={() => setPauseVisible(false)} />}
+      {showPremiumModal && <PremiumModal v={v} langue={langue} onClose={() => setShowPremiumModal(false)} onActivate={() => setIsPremium(true)} />}
     </div>
   );
 }

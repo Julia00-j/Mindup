@@ -1120,7 +1120,7 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
           <span style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", borderRadius: 50, padding: "0.4rem 1.2rem", fontSize: "0.85rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</span>
         </div>
       ) : (
-        <button onClick={onPremium} style={{ width: "100%", marginBottom: "0.5rem", background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>
+        <button type="button" onClick={onPremium} style={{ width: "100%", marginBottom: "0.5rem", background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>
           ⭐ {langue === "en" ? "Upgrade to Premium" : langue === "es" ? "Obtener Premium" : "Passer en Premium"}
         </button>
       )}
@@ -1520,8 +1520,8 @@ function PremiumModal({ v, langue, onClose, onActivate }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-      <div style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 400, boxShadow: "0 16px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 400, boxShadow: "0 16px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
         <div style={{ background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", padding: "2rem", textAlign: "center" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>⭐</div>
           <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff" }}>Mindup Premium</div>

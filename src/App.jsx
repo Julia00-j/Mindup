@@ -186,150 +186,590 @@ function getXpGain(type) {
 
 
 // ============ DONNÉES JEUX PAUSE ============
-const CAPITALES = [
-  ["France","Paris"],["Allemagne","Berlin"],["Espagne","Madrid"],["Italie","Rome"],["Portugal","Lisbonne"],
-  ["Belgique","Bruxelles"],["Pays-Bas","Amsterdam"],["Suisse","Berne"],["Autriche","Vienne"],["Pologne","Varsovie"],
-  ["Suède","Stockholm"],["Norvège","Oslo"],["Danemark","Copenhague"],["Finlande","Helsinki"],["Grèce","Athènes"],
-  ["Russie","Moscou"],["Ukraine","Kiev"],["Turquie","Ankara"],["Maroc","Rabat"],["Algérie","Alger"],
-  ["Tunisie","Tunis"],["Égypte","Le Caire"],["Sénégal","Dakar"],["Côte d'Ivoire","Yamoussoukro"],["Nigeria","Abuja"],
-  ["Afrique du Sud","Pretoria"],["Kenya","Nairobi"],["Éthiopie","Addis-Abeba"],["États-Unis","Washington"],
-  ["Canada","Ottawa"],["Mexique","Mexico"],["Brésil","Brasilia"],["Argentine","Buenos Aires"],["Chili","Santiago"],
-  ["Colombie","Bogota"],["Pérou","Lima"],["Japon","Tokyo"],["Chine","Pékin"],["Inde","New Delhi"],
-  ["Australie","Canberra"],["Corée du Sud","Séoul"],["Thaïlande","Bangkok"],["Vietnam","Hanoi"],["Indonésie","Jakarta"],
-  ["Pakistan","Islamabad"],["Arabie Saoudite","Riyad"],["Iran","Téhéran"],["Irak","Bagdad"],["Israël","Jérusalem"],
-];
+const CAPITALES_PAR_NIVEAU = {
+  debutant: [
+    ["France","Paris"],["Allemagne","Berlin"],["Espagne","Madrid"],["Italie","Rome"],["Portugal","Lisbonne"],
+    ["Belgique","Bruxelles"],["Pays-Bas","Amsterdam"],["Suisse","Berne"],["Grèce","Athènes"],["Russie","Moscou"],
+    ["Japon","Tokyo"],["Chine","Pékin"],["États-Unis","Washington"],["Brésil","Brasilia"],["Canada","Ottawa"],
+    ["Australie","Canberra"],["Mexique","Mexico"],["Argentine","Buenos Aires"],["Inde","New Delhi"],["Turquie","Ankara"],
+    ["Maroc","Rabat"],["Algérie","Alger"],["Tunisie","Tunis"],["Égypte","Le Caire"],["Suède","Stockholm"],
+    ["Norvège","Oslo"],["Danemark","Copenhague"],["Pologne","Varsovie"],["Autriche","Vienne"],["Corée du Sud","Séoul"],
+  ],
+  moyen: [
+    ["Ukraine","Kiev"],["Sénégal","Dakar"],["Côte d'Ivoire","Yamoussoukro"],["Nigeria","Abuja"],["Kenya","Nairobi"],
+    ["Afrique du Sud","Pretoria"],["Éthiopie","Addis-Abeba"],["Colombie","Bogota"],["Pérou","Lima"],["Chili","Santiago"],
+    ["Thaïlande","Bangkok"],["Vietnam","Hanoi"],["Indonésie","Jakarta"],["Pakistan","Islamabad"],["Iran","Téhéran"],
+    ["Arabie Saoudite","Riyad"],["Irak","Bagdad"],["Finlande","Helsinki"],["Roumanie","Bucarest"],["Hongrie","Budapest"],
+    ["République tchèque","Prague"],["Bulgarie","Sofia"],["Croatie","Zagreb"],["Slovaquie","Bratislava"],["Serbie","Belgrade"],
+    ["Pérou","Lima"],["Venezuela","Caracas"],["Cuba","La Havane"],["Équateur","Quito"],["Paraguay","Asunción"],
+    ["Uruguay","Montevideo"],["Bangladesh","Dacca"],["Sri Lanka","Colombo"],["Myanmar","Naypyidaw"],["Cambodge","Phnom Penh"],
+    ["Laos","Vientiane"],["Philippines","Manille"],["Malaisie","Kuala Lumpur"],["Singapour","Singapour"],["Nouvelle-Zélande","Wellington"],
+  ],
+  experimente: [
+    ["Kazakhstan","Noursoultan"],["Ouzbékistan","Tachkent"],["Azerbaïdjan","Bakou"],["Géorgie","Tbilissi"],["Arménie","Erevan"],
+    ["Kirghizistan","Bichkek"],["Tadjikistan","Douchanbe"],["Turkménistan","Achgabat"],["Mongolie","Oulan-Bator"],["Bhoutan","Thimphou"],
+    ["Népal","Katmandou"],["Maldives","Malé"],["Timor oriental","Dili"],["Brunei","Bandar Seri Begawan"],["Papouasie-Nouvelle-Guinée","Port Moresby"],
+    ["Fidji","Suva"],["Vanuatu","Port-Vila"],["Samoa","Apia"],["Tonga","Nuku'alofa"],["Kiribati","Tarawa"],
+    ["Djibouti","Djibouti"],["Érythrée","Asmara"],["Somalie","Mogadiscio"],["Tanzanie","Dodoma"],["Mozambique","Maputo"],
+    ["Zambie","Lusaka"],["Zimbabwe","Harare"],["Malawi","Lilongwe"],["Botswana","Gaborone"],["Namibie","Windhoek"],
+    ["Angola","Luanda"],["Cameroun","Yaoundé"],["Ghana","Accra"],["Côte d'Ivoire","Yamoussoukro"],["Burkina Faso","Ouagadougou"],
+    ["Mali","Bamako"],["Niger","Niamey"],["Tchad","N'Djamena"],["Soudan","Khartoum"],["Libye","Tripoli"],
+    ["Belize","Belmopan"],["Honduras","Tegucigalpa"],["Nicaragua","Managua"],["Costa Rica","San José"],["Panama","Panama City"],
+    ["Suriname","Paramaribo"],["Guyana","Georgetown"],["Islande","Reykjavik"],["Malte","La Valette"],["Chypre","Nicosie"],
+  ],
+};
 
-const FLASHCARDS = {
+const FLASHCARDS_PAR_NIVEAU = {
   fr: {
-    en: [
-      ["Bonjour","Hello"],["Merci","Thank you"],["Au revoir","Goodbye"],["S'il vous plaît","Please"],
-      ["Oui","Yes"],["Non","No"],["Comment allez-vous ?","How are you?"],["Je ne comprends pas","I don't understand"],
-      ["Où est...?","Where is...?"],["Combien ça coûte ?","How much is it?"],["Je m'appelle...","My name is..."],
-      ["J'ai faim","I'm hungry"],["J'ai soif","I'm thirsty"],["Aide-moi","Help me"],["Je suis perdu","I'm lost"],
-    ],
-    es: [
-      ["Bonjour","Hola"],["Merci","Gracias"],["Au revoir","Adiós"],["S'il vous plaît","Por favor"],
-      ["Oui","Sí"],["Non","No"],["Comment allez-vous ?","¿Cómo está usted?"],["Je ne comprends pas","No entiendo"],
-      ["Où est...?","¿Dónde está...?"],["Combien ça coûte ?","¿Cuánto cuesta?"],["Je m'appelle...","Me llamo..."],
-      ["J'ai faim","Tengo hambre"],["J'ai soif","Tengo sed"],["Aide-moi","Ayúdame"],["Je suis perdu","Estoy perdido"],
-    ],
-    de: [
-      ["Bonjour","Guten Tag"],["Merci","Danke"],["Au revoir","Auf Wiedersehen"],["S'il vous plaît","Bitte"],
-      ["Oui","Ja"],["Non","Nein"],["Comment allez-vous ?","Wie geht es Ihnen?"],["Je ne comprends pas","Ich verstehe nicht"],
-      ["Où est...?","Wo ist...?"],["Combien ça coûte ?","Was kostet das?"],["Je m'appelle...","Ich heiße..."],
-      ["J'ai faim","Ich habe Hunger"],["J'ai soif","Ich habe Durst"],["Aide-moi","Hilf mir"],["Je suis perdu","Ich bin verloren"],
-    ],
+    en: {
+      debutant: [
+        ["Bonjour","Hello"],["Merci","Thank you"],["Au revoir","Goodbye"],["S'il vous plaît","Please"],
+        ["Oui","Yes"],["Non","No"],["Chat","Cat"],["Chien","Dog"],["Maison","House"],["Voiture","Car"],
+        ["Manger","To eat"],["Boire","To drink"],["Dormir","To sleep"],["Grand","Big"],["Petit","Small"],
+        ["Rouge","Red"],["Bleu","Blue"],["Vert","Green"],["Blanc","White"],["Noir","Black"],
+        ["Un","One"],["Deux","Two"],["Trois","Three"],["Père","Father"],["Mère","Mother"],
+        ["Frère","Brother"],["Sœur","Sister"],["Ami","Friend"],["École","School"],["Livre","Book"],
+      ],
+      moyen: [
+        ["Parapluie","Umbrella"],["Boulangerie","Bakery"],["Pharmacie","Pharmacy"],["Médicament","Medicine"],
+        ["Rendez-vous","Appointment"],["Embouteillage","Traffic jam"],["Grève","Strike"],["Augmentation","Raise"],
+        ["Entreprise","Company"],["Réunion","Meeting"],["Logiciel","Software"],["Télécharger","To download"],
+        ["Abonnement","Subscription"],["Facture","Invoice"],["Remboursement","Refund"],["Assurance","Insurance"],
+        ["Loyer","Rent"],["Impôts","Taxes"],["Économies","Savings"],["Investissement","Investment"],
+        ["Inquiet","Worried"],["Soulagé","Relieved"],["Déçu","Disappointed"],["Fier","Proud"],["Jaloux","Jealous"],
+        ["Honnête","Honest"],["Courageux","Brave"],["Paresseux","Lazy"],["Généreux","Generous"],["Curieux","Curious"],
+      ],
+      experimente: [
+        ["Désinvolture","Nonchalance"],["Perspicace","Perceptive"],["Ambiguïté","Ambiguity"],["Bienveillance","Benevolence"],
+        ["Circonspect","Circumspect"],["Effervescent","Effervescent"],["Imperturbable","Imperturbable"],["Ténacité","Tenacity"],
+        ["Pragmatique","Pragmatic"],["Résilience","Resilience"],["Vraisemblance","Plausibility"],["Quintessence","Quintessence"],
+        ["Prérogative","Prerogative"],["Subterfuge","Subterfuge"],["Amalgame","Amalgam"],["Dichotomie","Dichotomy"],
+        ["Hégémonie","Hegemony"],["Paradigme","Paradigm"],["Épiphanie","Epiphany"],["Sycophante","Sycophant"],
+        ["Anachronisme","Anachronism"],["Ostracisme","Ostracism"],["Euphémisme","Euphemism"],["Pléonasme","Pleonasm"],
+        ["Oxymore","Oxymoron"],["Métaphore","Metaphor"],["Allégorie","Allegory"],["Paradoxe","Paradox"],
+        ["Protagoniste","Protagonist"],["Antagoniste","Antagonist"],
+      ],
+    },
+    es: {
+      debutant: [
+        ["Bonjour","Hola"],["Merci","Gracias"],["Au revoir","Adiós"],["S'il vous plaît","Por favor"],
+        ["Oui","Sí"],["Non","No"],["Chat","Gato"],["Chien","Perro"],["Maison","Casa"],["Voiture","Coche"],
+        ["Manger","Comer"],["Boire","Beber"],["Dormir","Dormir"],["Grand","Grande"],["Petit","Pequeño"],
+        ["Rouge","Rojo"],["Bleu","Azul"],["Vert","Verde"],["Blanc","Blanco"],["Noir","Negro"],
+        ["Un","Uno"],["Deux","Dos"],["Trois","Tres"],["Père","Padre"],["Mère","Madre"],
+        ["Frère","Hermano"],["Sœur","Hermana"],["Ami","Amigo"],["École","Escuela"],["Livre","Libro"],
+      ],
+      moyen: [
+        ["Parapluie","Paraguas"],["Boulangerie","Panadería"],["Pharmacie","Farmacia"],["Médicament","Medicamento"],
+        ["Rendez-vous","Cita"],["Embouteillage","Atasco"],["Grève","Huelga"],["Augmentation","Aumento"],
+        ["Entreprise","Empresa"],["Réunion","Reunión"],["Logiciel","Software"],["Télécharger","Descargar"],
+        ["Abonnement","Suscripción"],["Facture","Factura"],["Remboursement","Reembolso"],["Assurance","Seguro"],
+        ["Loyer","Alquiler"],["Impôts","Impuestos"],["Économies","Ahorros"],["Investissement","Inversión"],
+        ["Inquiet","Preocupado"],["Soulagé","Aliviado"],["Déçu","Decepcionado"],["Fier","Orgulloso"],["Jaloux","Celoso"],
+        ["Honnête","Honesto"],["Courageux","Valiente"],["Paresseux","Perezoso"],["Généreux","Generoso"],["Curieux","Curioso"],
+      ],
+      experimente: [
+        ["Désinvolture","Desenvoltura"],["Perspicace","Perspicaz"],["Ambiguïté","Ambigüedad"],["Bienveillance","Benevolencia"],
+        ["Imperturbable","Imperturbable"],["Ténacité","Tenacidad"],["Pragmatique","Pragmático"],["Résilience","Resiliencia"],
+        ["Prérogative","Prerrogativa"],["Amalgame","Amalgama"],["Dichotomie","Dicotomía"],["Hégémonie","Hegemonía"],
+        ["Paradigme","Paradigma"],["Anachronisme","Anacronismo"],["Ostracisme","Ostracismo"],["Euphémisme","Eufemismo"],
+        ["Oxymore","Oxímoron"],["Métaphore","Metáfora"],["Allégorie","Alegoría"],["Paradoxe","Paradoja"],
+        ["Protagoniste","Protagonista"],["Antagoniste","Antagonista"],["Subterfuge","Subterfugio"],["Quintessence","Quintaesencia"],
+        ["Épiphanie","Epifanía"],["Sycophante","Sicofante"],["Vraisemblance","Verosimilitud"],["Pléonasme","Pleonasmo"],
+        ["Circonspect","Circunspecto"],["Effervescent","Efervescente"],
+      ],
+    },
+    de: {
+      debutant: [
+        ["Bonjour","Guten Tag"],["Merci","Danke"],["Au revoir","Auf Wiedersehen"],["S'il vous plaît","Bitte"],
+        ["Oui","Ja"],["Non","Nein"],["Chat","Katze"],["Chien","Hund"],["Maison","Haus"],["Voiture","Auto"],
+        ["Manger","Essen"],["Boire","Trinken"],["Dormir","Schlafen"],["Grand","Groß"],["Petit","Klein"],
+        ["Rouge","Rot"],["Bleu","Blau"],["Vert","Grün"],["Blanc","Weiß"],["Noir","Schwarz"],
+        ["Un","Eins"],["Deux","Zwei"],["Trois","Drei"],["Père","Vater"],["Mère","Mutter"],
+        ["Frère","Bruder"],["Sœur","Schwester"],["Ami","Freund"],["École","Schule"],["Livre","Buch"],
+      ],
+      moyen: [
+        ["Parapluie","Regenschirm"],["Boulangerie","Bäckerei"],["Pharmacie","Apotheke"],["Médicament","Medikament"],
+        ["Rendez-vous","Termin"],["Embouteillage","Stau"],["Grève","Streik"],["Augmentation","Erhöhung"],
+        ["Entreprise","Unternehmen"],["Réunion","Besprechung"],["Logiciel","Software"],["Télécharger","Herunterladen"],
+        ["Abonnement","Abonnement"],["Facture","Rechnung"],["Remboursement","Erstattung"],["Assurance","Versicherung"],
+        ["Loyer","Miete"],["Impôts","Steuern"],["Économies","Ersparnisse"],["Investissement","Investition"],
+        ["Inquiet","Besorgt"],["Soulagé","Erleichtert"],["Déçu","Enttäuscht"],["Fier","Stolz"],["Jaloux","Eifersüchtig"],
+        ["Honnête","Ehrlich"],["Courageux","Mutig"],["Paresseux","Faul"],["Généreux","Großzügig"],["Curieux","Neugierig"],
+      ],
+      experimente: [
+        ["Désinvolture","Lässigkeit"],["Perspicace","Scharfsinnig"],["Ambiguïté","Mehrdeutigkeit"],["Bienveillance","Wohlwollen"],
+        ["Imperturbable","Unerschütterlich"],["Ténacité","Beharrlichkeit"],["Pragmatique","Pragmatisch"],["Résilience","Resilienz"],
+        ["Prérogative","Vorrecht"],["Amalgame","Amalgam"],["Dichotomie","Dichotomie"],["Hégémonie","Hegemonie"],
+        ["Paradigme","Paradigma"],["Anachronisme","Anachronismus"],["Euphémisme","Euphemismus"],["Oxymore","Oxymoron"],
+        ["Métaphore","Metapher"],["Allégorie","Allegorie"],["Paradoxe","Paradox"],["Protagoniste","Protagonist"],
+        ["Antagoniste","Antagonist"],["Subterfuge","Vorwand"],["Épiphanie","Epiphanie"],["Ostracisme","Ächtung"],
+        ["Circonspect","Behutsam"],["Effervescent","Sprudelnd"],["Quintessence","Quintessenz"],["Pléonasme","Pleonasmus"],
+        ["Vraisemblance","Glaubwürdigkeit"],["Sycophante","Schmeichler"],
+      ],
+    },
   },
   en: {
-    fr: [
-      ["Hello","Bonjour"],["Thank you","Merci"],["Goodbye","Au revoir"],["Please","S'il vous plaît"],
-      ["Yes","Oui"],["No","Non"],["How are you?","Comment allez-vous ?"],["I don't understand","Je ne comprends pas"],
-      ["Where is...?","Où est...?"],["How much is it?","Combien ça coûte ?"],["My name is...","Je m'appelle..."],
-      ["I'm hungry","J'ai faim"],["I'm thirsty","J'ai soif"],["Help me","Aide-moi"],["I'm lost","Je suis perdu"],
-    ],
-    es: [
-      ["Hello","Hola"],["Thank you","Gracias"],["Goodbye","Adiós"],["Please","Por favor"],
-      ["Yes","Sí"],["No","No"],["How are you?","¿Cómo estás?"],["I don't understand","No entiendo"],
-      ["Where is...?","¿Dónde está...?"],["How much is it?","¿Cuánto cuesta?"],["My name is...","Me llamo..."],
-      ["I'm hungry","Tengo hambre"],["I'm thirsty","Tengo sed"],["Help me","Ayúdame"],["I'm lost","Estoy perdido"],
-    ],
+    fr: {
+      debutant: [
+        ["Hello","Bonjour"],["Thank you","Merci"],["Goodbye","Au revoir"],["Please","S'il vous plaît"],
+        ["Yes","Oui"],["No","Non"],["Cat","Chat"],["Dog","Chien"],["House","Maison"],["Car","Voiture"],
+        ["To eat","Manger"],["To drink","Boire"],["To sleep","Dormir"],["Big","Grand"],["Small","Petit"],
+        ["Red","Rouge"],["Blue","Bleu"],["Green","Vert"],["White","Blanc"],["Black","Noir"],
+        ["One","Un"],["Two","Deux"],["Three","Trois"],["Father","Père"],["Mother","Mère"],
+        ["Brother","Frère"],["Sister","Sœur"],["Friend","Ami"],["School","École"],["Book","Livre"],
+      ],
+      moyen: [
+        ["Umbrella","Parapluie"],["Bakery","Boulangerie"],["Pharmacy","Pharmacie"],["Medicine","Médicament"],
+        ["Appointment","Rendez-vous"],["Traffic jam","Embouteillage"],["Strike","Grève"],["Raise","Augmentation"],
+        ["Company","Entreprise"],["Meeting","Réunion"],["Software","Logiciel"],["To download","Télécharger"],
+        ["Subscription","Abonnement"],["Invoice","Facture"],["Refund","Remboursement"],["Insurance","Assurance"],
+        ["Rent","Loyer"],["Taxes","Impôts"],["Savings","Économies"],["Investment","Investissement"],
+        ["Worried","Inquiet"],["Relieved","Soulagé"],["Disappointed","Déçu"],["Proud","Fier"],["Jealous","Jaloux"],
+        ["Honest","Honnête"],["Brave","Courageux"],["Lazy","Paresseux"],["Generous","Généreux"],["Curious","Curieux"],
+      ],
+      experimente: [
+        ["Nonchalance","Désinvolture"],["Perceptive","Perspicace"],["Ambiguity","Ambiguïté"],["Benevolence","Bienveillance"],
+        ["Imperturbable","Imperturbable"],["Tenacity","Ténacité"],["Pragmatic","Pragmatique"],["Resilience","Résilience"],
+        ["Prerogative","Prérogative"],["Amalgam","Amalgame"],["Dichotomy","Dichotomie"],["Hegemony","Hégémonie"],
+        ["Paradigm","Paradigme"],["Anachronism","Anachronisme"],["Euphemism","Euphémisme"],["Oxymoron","Oxymore"],
+        ["Metaphor","Métaphore"],["Allegory","Allégorie"],["Paradox","Paradoxe"],["Protagonist","Protagoniste"],
+        ["Antagonist","Antagoniste"],["Subterfuge","Subterfuge"],["Epiphany","Épiphanie"],["Ostracism","Ostracisme"],
+        ["Circumspect","Circonspect"],["Effervescent","Effervescent"],["Quintessence","Quintessence"],["Pleonasm","Pléonasme"],
+        ["Plausibility","Vraisemblance"],["Sycophant","Sycophante"],
+      ],
+    },
+    es: {
+      debutant: [
+        ["Hello","Hola"],["Thank you","Gracias"],["Goodbye","Adiós"],["Please","Por favor"],
+        ["Yes","Sí"],["No","No"],["Cat","Gato"],["Dog","Perro"],["House","Casa"],["Car","Coche"],
+        ["To eat","Comer"],["To drink","Beber"],["To sleep","Dormir"],["Big","Grande"],["Small","Pequeño"],
+        ["Red","Rojo"],["Blue","Azul"],["Green","Verde"],["White","Blanco"],["Black","Negro"],
+        ["One","Uno"],["Two","Dos"],["Three","Tres"],["Father","Padre"],["Mother","Madre"],
+        ["Brother","Hermano"],["Sister","Hermana"],["Friend","Amigo"],["School","Escuela"],["Book","Libro"],
+      ],
+      moyen: [
+        ["Umbrella","Paraguas"],["Bakery","Panadería"],["Pharmacy","Farmacia"],["Medicine","Medicamento"],
+        ["Appointment","Cita"],["Traffic jam","Atasco"],["Strike","Huelga"],["Raise","Aumento"],
+        ["Company","Empresa"],["Meeting","Reunión"],["To download","Descargar"],["Subscription","Suscripción"],
+        ["Invoice","Factura"],["Refund","Reembolso"],["Insurance","Seguro"],["Rent","Alquiler"],
+        ["Taxes","Impuestos"],["Savings","Ahorros"],["Investment","Inversión"],["Worried","Preocupado"],
+        ["Relieved","Aliviado"],["Disappointed","Decepcionado"],["Proud","Orgulloso"],["Jealous","Celoso"],
+        ["Honest","Honesto"],["Brave","Valiente"],["Lazy","Perezoso"],["Generous","Generoso"],["Curious","Curioso"],["Stubborn","Terco"],
+      ],
+      experimente: [
+        ["Nonchalance","Desenvoltura"],["Perceptive","Perspicaz"],["Ambiguity","Ambigüedad"],["Benevolence","Benevolencia"],
+        ["Tenacity","Tenacidad"],["Pragmatic","Pragmático"],["Resilience","Resiliencia"],["Prerogative","Prerrogativa"],
+        ["Dichotomy","Dicotomía"],["Hegemony","Hegemonía"],["Paradigm","Paradigma"],["Anachronism","Anacronismo"],
+        ["Euphemism","Eufemismo"],["Oxymoron","Oxímoron"],["Metaphor","Metáfora"],["Allegory","Alegoría"],
+        ["Paradox","Paradoja"],["Protagonist","Protagonista"],["Antagonist","Antagonista"],["Epiphany","Epifanía"],
+        ["Ostracism","Ostracismo"],["Subterfuge","Subterfugio"],["Quintessence","Quintaesencia"],["Pleonasm","Pleonasmo"],
+        ["Plausibility","Verosimilitud"],["Sycophant","Sicofante"],["Circumspect","Circunspecto"],["Effervescent","Efervescente"],
+        ["Amalgam","Amalgama"],["Imperturbable","Imperturbable"],
+      ],
+    },
   },
   es: {
-    fr: [
-      ["Hola","Bonjour"],["Gracias","Merci"],["Adiós","Au revoir"],["Por favor","S'il vous plaît"],
-      ["Sí","Oui"],["No","Non"],["¿Cómo estás?","Comment vas-tu ?"],["No entiendo","Je ne comprends pas"],
-      ["¿Dónde está...?","Où est...?"],["¿Cuánto cuesta?","Combien ça coûte ?"],["Me llamo...","Je m'appelle..."],
-      ["Tengo hambre","J'ai faim"],["Tengo sed","J'ai soif"],["Ayúdame","Aide-moi"],["Estoy perdido","Je suis perdu"],
-    ],
-    en: [
-      ["Hola","Hello"],["Gracias","Thank you"],["Adiós","Goodbye"],["Por favor","Please"],
-      ["Sí","Yes"],["No","No"],["¿Cómo estás?","How are you?"],["No entiendo","I don't understand"],
-      ["¿Dónde está...?","Where is...?"],["¿Cuánto cuesta?","How much is it?"],["Me llamo...","My name is..."],
-      ["Tengo hambre","I'm hungry"],["Tengo sed","I'm thirsty"],["Ayúdame","Help me"],["Estoy perdido","I'm lost"],
-    ],
+    fr: {
+      debutant: [
+        ["Hola","Bonjour"],["Gracias","Merci"],["Adiós","Au revoir"],["Por favor","S'il vous plaît"],
+        ["Sí","Oui"],["No","Non"],["Gato","Chat"],["Perro","Chien"],["Casa","Maison"],["Coche","Voiture"],
+        ["Comer","Manger"],["Beber","Boire"],["Dormir","Dormir"],["Grande","Grand"],["Pequeño","Petit"],
+        ["Rojo","Rouge"],["Azul","Bleu"],["Verde","Vert"],["Blanco","Blanc"],["Negro","Noir"],
+        ["Uno","Un"],["Dos","Deux"],["Tres","Trois"],["Padre","Père"],["Madre","Mère"],
+        ["Hermano","Frère"],["Hermana","Sœur"],["Amigo","Ami"],["Escuela","École"],["Libro","Livre"],
+      ],
+      moyen: [
+        ["Paraguas","Parapluie"],["Panadería","Boulangerie"],["Farmacia","Pharmacie"],["Medicamento","Médicament"],
+        ["Cita","Rendez-vous"],["Atasco","Embouteillage"],["Huelga","Grève"],["Aumento","Augmentation"],
+        ["Empresa","Entreprise"],["Reunión","Réunion"],["Descargar","Télécharger"],["Suscripción","Abonnement"],
+        ["Factura","Facture"],["Reembolso","Remboursement"],["Seguro","Assurance"],["Alquiler","Loyer"],
+        ["Impuestos","Impôts"],["Ahorros","Économies"],["Inversión","Investissement"],["Preocupado","Inquiet"],
+        ["Aliviado","Soulagé"],["Decepcionado","Déçu"],["Orgulloso","Fier"],["Celoso","Jaloux"],
+        ["Honesto","Honnête"],["Valiente","Courageux"],["Perezoso","Paresseux"],["Generoso","Généreux"],["Curioso","Curieux"],["Terco","Têtu"],
+      ],
+      experimente: [
+        ["Desenvoltura","Désinvolture"],["Perspicaz","Perspicace"],["Ambigüedad","Ambiguïté"],["Benevolencia","Bienveillance"],
+        ["Tenacidad","Ténacité"],["Pragmático","Pragmatique"],["Resiliencia","Résilience"],["Prerrogativa","Prérogative"],
+        ["Dicotomía","Dichotomie"],["Hegemonía","Hégémonie"],["Paradigma","Paradigme"],["Anacronismo","Anachronisme"],
+        ["Eufemismo","Euphémisme"],["Oxímoron","Oxymore"],["Metáfora","Métaphore"],["Alegoría","Allégorie"],
+        ["Paradoja","Paradoxe"],["Protagonista","Protagoniste"],["Antagonista","Antagoniste"],["Epifanía","Épiphanie"],
+        ["Ostracismo","Ostracisme"],["Subterfugio","Subterfuge"],["Quintaesencia","Quintessence"],["Pleonasmo","Pléonasme"],
+        ["Verosimilitud","Vraisemblance"],["Sicofante","Sycophante"],["Circunspecto","Circonspect"],["Efervescente","Effervescent"],
+        ["Amalgama","Amalgame"],["Imperturbable","Imperturbable"],
+      ],
+    },
+    en: {
+      debutant: [
+        ["Hola","Hello"],["Gracias","Thank you"],["Adiós","Goodbye"],["Por favor","Please"],
+        ["Sí","Yes"],["No","No"],["Gato","Cat"],["Perro","Dog"],["Casa","House"],["Coche","Car"],
+        ["Comer","To eat"],["Beber","To drink"],["Dormir","To sleep"],["Grande","Big"],["Pequeño","Small"],
+        ["Rojo","Red"],["Azul","Blue"],["Verde","Green"],["Blanco","White"],["Negro","Black"],
+        ["Uno","One"],["Dos","Two"],["Tres","Three"],["Padre","Father"],["Madre","Mother"],
+        ["Hermano","Brother"],["Hermana","Sister"],["Amigo","Friend"],["Escuela","School"],["Libro","Book"],
+      ],
+      moyen: [
+        ["Paraguas","Umbrella"],["Panadería","Bakery"],["Farmacia","Pharmacy"],["Medicamento","Medicine"],
+        ["Cita","Appointment"],["Atasco","Traffic jam"],["Huelga","Strike"],["Aumento","Raise"],
+        ["Empresa","Company"],["Reunión","Meeting"],["Descargar","To download"],["Suscripción","Subscription"],
+        ["Factura","Invoice"],["Reembolso","Refund"],["Seguro","Insurance"],["Alquiler","Rent"],
+        ["Impuestos","Taxes"],["Ahorros","Savings"],["Inversión","Investment"],["Preocupado","Worried"],
+        ["Aliviado","Relieved"],["Decepcionado","Disappointed"],["Orgulloso","Proud"],["Celoso","Jealous"],
+        ["Honesto","Honest"],["Valiente","Brave"],["Perezoso","Lazy"],["Generoso","Generous"],["Curioso","Curious"],["Terco","Stubborn"],
+      ],
+      experimente: [
+        ["Desenvoltura","Nonchalance"],["Perspicaz","Perceptive"],["Ambigüedad","Ambiguity"],["Benevolencia","Benevolence"],
+        ["Tenacidad","Tenacity"],["Pragmático","Pragmatic"],["Resiliencia","Resilience"],["Prerrogativa","Prerogative"],
+        ["Dicotomía","Dichotomy"],["Hegemonía","Hegemony"],["Paradigma","Paradigm"],["Anacronismo","Anachronism"],
+        ["Eufemismo","Euphemism"],["Oxímoron","Oxymoron"],["Metáfora","Metaphor"],["Alegoría","Allegory"],
+        ["Paradoja","Paradox"],["Protagonista","Protagonist"],["Antagonista","Antagonist"],["Epifanía","Epiphany"],
+        ["Ostracismo","Ostracism"],["Subterfugio","Subterfuge"],["Quintaesencia","Quintessence"],["Pleonasmo","Pleonasm"],
+        ["Verosimilitud","Plausibility"],["Sicofante","Sycophant"],["Circunspecto","Circumspect"],["Efervescente","Effervescent"],
+        ["Amalgama","Amalgam"],["Imperturbable","Imperturbable"],
+      ],
+    },
   },
 };
 
-const PHRASES_QUOTIDIEN = {
+const PHRASES_PAR_NIVEAU = {
   fr: {
-    en: [
-      ["Peux-tu répéter s'il te plaît ?","Could you repeat that please?"],
-      ["Je voudrais réserver une table","I'd like to book a table"],
-      ["À quelle heure ouvre le musée ?","What time does the museum open?"],
-      ["Pouvez-vous m'aider ?","Can you help me?"],
-      ["C'est trop cher","It's too expensive"],
-      ["Je cherche la gare","I'm looking for the train station"],
-      ["L'addition s'il vous plaît","The bill please"],
-      ["Je suis allergique à...","I'm allergic to..."],
-      ["Appelez une ambulance !","Call an ambulance!"],
-      ["Parlez-vous français ?","Do you speak French?"],
-    ],
-    es: [
-      ["Peux-tu répéter s'il te plaît ?","¿Puedes repetir por favor?"],
-      ["Je voudrais réserver une table","Quisiera reservar una mesa"],
-      ["À quelle heure ouvre le musée ?","¿A qué hora abre el museo?"],
-      ["Pouvez-vous m'aider ?","¿Puede ayudarme?"],
-      ["C'est trop cher","Es demasiado caro"],
-      ["Je cherche la gare","Estoy buscando la estación"],
-      ["L'addition s'il vous plaît","La cuenta por favor"],
-      ["Je suis allergique à...","Soy alérgico a..."],
-      ["Appelez une ambulance !","¡Llame a una ambulancia!"],
-      ["Parlez-vous français ?","¿Habla usted francés?"],
-    ],
+    en: {
+      debutant: [
+        ["Où est la gare ?","Where is the train station?"],["Je m'appelle...","My name is..."],
+        ["J'ai faim","I'm hungry"],["Combien ça coûte ?","How much is it?"],["Parlez-vous français ?","Do you speak French?"],
+        ["Je ne comprends pas","I don't understand"],["Pouvez-vous répéter ?","Can you repeat?"],
+        ["Où sont les toilettes ?","Where are the toilets?"],["Je voudrais de l'eau","I'd like some water"],
+        ["À quelle heure ?","At what time?"],["C'est loin ?","Is it far?"],["Tournez à gauche","Turn left"],
+        ["Tournez à droite","Turn right"],["Tout droit","Straight ahead"],["Merci beaucoup","Thank you very much"],
+        ["De rien","You're welcome"],["Excusez-moi","Excuse me"],["Au secours !","Help!"],
+        ["J'ai perdu mon passeport","I lost my passport"],["Je suis allergique","I'm allergic"],
+      ],
+      moyen: [
+        ["Pourriez-vous m'indiquer le chemin ?","Could you show me the way?"],
+        ["Je voudrais réserver une chambre","I'd like to book a room"],
+        ["Est-ce que vous acceptez les cartes ?","Do you accept cards?"],
+        ["Pouvez-vous appeler un médecin ?","Can you call a doctor?"],
+        ["Je souhaite annuler ma réservation","I'd like to cancel my reservation"],
+        ["Y a-t-il un distributeur près d'ici ?","Is there an ATM nearby?"],
+        ["À quelle heure est le prochain train ?","What time is the next train?"],
+        ["Je cherche un hôtel pas trop cher","I'm looking for an affordable hotel"],
+        ["Pourriez-vous parler plus lentement ?","Could you speak more slowly?"],
+        ["Je dois prendre mon vol à 14h","I have to catch my flight at 2pm"],
+        ["Est-ce inclus dans le prix ?","Is it included in the price?"],
+        ["Je voudrais changer de l'argent","I'd like to exchange money"],
+        ["Avez-vous une table pour deux ?","Do you have a table for two?"],
+        ["Je suis végétarien","I'm vegetarian"],["L'addition s'il vous plaît","The bill please"],
+        ["C'était délicieux","It was delicious"],["Pouvez-vous m'aider à porter ça ?","Can you help me carry this?"],
+        ["Je cherche un appartement","I'm looking for an apartment"],
+        ["Le loyer est-il chargé ?","Are bills included in the rent?"],
+        ["J'ai besoin d'un plombier","I need a plumber"],
+      ],
+      experimente: [
+        ["Je souhaiterais soumettre une réclamation","I'd like to submit a complaint"],
+        ["Pourriez-vous me fournir un justificatif ?","Could you provide me with proof?"],
+        ["Dans quelle mesure cela est-il négociable ?","To what extent is this negotiable?"],
+        ["Je tiens à souligner que...","I'd like to emphasize that..."],
+        ["Il convient de préciser que...","It should be noted that..."],
+        ["Sous toutes réserves","Without prejudice"],
+        ["Conformément à notre accord","In accordance with our agreement"],
+        ["Je me permets de vous relancer","I'm following up on our discussion"],
+        ["Veuillez trouver ci-joint","Please find attached"],
+        ["Dans l'attente de votre retour","Looking forward to hearing from you"],
+        ["Je reste à votre entière disposition","I remain at your complete disposal"],
+        ["Cela ne relève pas de mes attributions","That falls outside my remit"],
+        ["Nous sommes dans l'impasse","We've reached a deadlock"],
+        ["Il faut trancher la question","We need to settle this matter"],
+        ["Permettez-moi de nuancer mon propos","Allow me to qualify my statement"],
+        ["Toutes choses égales par ailleurs","All things being equal"],
+        ["Il s'agit d'un cas de force majeure","This is a case of force majeure"],
+        ["Je sollicite votre bienveillance","I appeal to your understanding"],
+        ["Cela mérite réflexion approfondie","This warrants careful consideration"],
+        ["Sous réserve de confirmation","Subject to confirmation"],
+      ],
+    },
+    es: {
+      debutant: [
+        ["Où est la gare ?","¿Dónde está la estación?"],["Je m'appelle...","Me llamo..."],
+        ["J'ai faim","Tengo hambre"],["Combien ça coûte ?","¿Cuánto cuesta?"],["Parlez-vous français ?","¿Habla francés?"],
+        ["Je ne comprends pas","No entiendo"],["Pouvez-vous répéter ?","¿Puede repetir?"],
+        ["Où sont les toilettes ?","¿Dónde están los baños?"],["Je voudrais de l'eau","Quisiera agua"],
+        ["À quelle heure ?","¿A qué hora?"],["C'est loin ?","¿Está lejos?"],["Tournez à gauche","Gire a la izquierda"],
+        ["Tournez à droite","Gire a la derecha"],["Tout droit","Todo recto"],["Merci beaucoup","Muchas gracias"],
+        ["De rien","De nada"],["Excusez-moi","Perdone"],["Au secours !","¡Socorro!"],
+        ["J'ai perdu mon passeport","Perdí mi pasaporte"],["Je suis allergique","Soy alérgico"],
+      ],
+      moyen: [
+        ["Pourriez-vous m'indiquer le chemin ?","¿Podría indicarme el camino?"],
+        ["Je voudrais réserver une chambre","Quisiera reservar una habitación"],
+        ["Est-ce que vous acceptez les cartes ?","¿Aceptan tarjetas?"],
+        ["Pouvez-vous appeler un médecin ?","¿Puede llamar a un médico?"],
+        ["Je souhaite annuler ma réservation","Deseo cancelar mi reserva"],
+        ["Y a-t-il un distributeur près d'ici ?","¿Hay un cajero automático cerca?"],
+        ["À quelle heure est le prochain train ?","¿A qué hora sale el próximo tren?"],
+        ["Pourriez-vous parler plus lentement ?","¿Podría hablar más despacio?"],
+        ["Est-ce inclus dans le prix ?","¿Está incluido en el precio?"],
+        ["Avez-vous une table pour deux ?","¿Tienen mesa para dos?"],
+        ["Je suis végétarien","Soy vegetariano"],["L'addition s'il vous plaît","La cuenta por favor"],
+        ["C'était délicieux","Estaba delicioso"],["Je cherche un appartement","Busco un apartamento"],
+        ["J'ai besoin d'un plombier","Necesito un fontanero"],
+        ["Le chauffage ne fonctionne pas","La calefacción no funciona"],
+        ["Je voudrais changer de l'argent","Quisiera cambiar dinero"],
+        ["Mon vol est annulé","Mi vuelo está cancelado"],
+        ["Pouvez-vous me faire un reçu ?","¿Puede darme un recibo?"],
+        ["Il y a une erreur dans la facture","Hay un error en la factura"],
+      ],
+      experimente: [
+        ["Je souhaiterais soumettre une réclamation","Desearía presentar una reclamación"],
+        ["Dans quelle mesure cela est-il négociable ?","¿En qué medida es negociable?"],
+        ["Je tiens à souligner que...","Quiero destacar que..."],
+        ["Il convient de préciser que...","Conviene precisar que..."],
+        ["Conformément à notre accord","De conformidad con nuestro acuerdo"],
+        ["Veuillez trouver ci-joint","Adjunto encontrará"],
+        ["Dans l'attente de votre retour","En espera de su respuesta"],
+        ["Je reste à votre entière disposition","Quedo a su entera disposición"],
+        ["Nous sommes dans l'impasse","Estamos en un punto muerto"],
+        ["Il s'agit d'un cas de force majeure","Se trata de un caso de fuerza mayor"],
+        ["Je sollicite votre bienveillance","Apelo a su comprensión"],
+        ["Sous réserve de confirmation","A reserva de confirmación"],
+        ["Toutes choses égales par ailleurs","En igualdad de condiciones"],
+        ["Permettez-moi de nuancer mon propos","Permítame matizar mi postura"],
+        ["Cela ne relève pas de mes attributions","Eso no es de mi competencia"],
+        ["Il faut trancher la question","Hay que zanjar la cuestión"],
+        ["Pourriez-vous me fournir un justificatif ?","¿Podría proporcionarme un justificante?"],
+        ["Cela mérite réflexion approfondie","Merece reflexión profunda"],
+        ["Je me permets de vous relancer","Me permito recordarle nuestro acuerdo"],
+        ["Sous toutes réserves","Sin perjuicio de"],
+      ],
+    },
   },
   en: {
-    fr: [
-      ["Could you repeat that please?","Peux-tu répéter s'il te plaît ?"],
-      ["I'd like to book a table","Je voudrais réserver une table"],
-      ["What time does the museum open?","À quelle heure ouvre le musée ?"],
-      ["Can you help me?","Pouvez-vous m'aider ?"],
-      ["It's too expensive","C'est trop cher"],
-      ["I'm looking for the train station","Je cherche la gare"],
-      ["The bill please","L'addition s'il vous plaît"],
-      ["I'm allergic to...","Je suis allergique à..."],
-      ["Call an ambulance!","Appelez une ambulance !"],
-      ["Do you speak English?","Parlez-vous anglais ?"],
-    ],
-    es: [
-      ["Could you repeat that please?","¿Puedes repetir por favor?"],
-      ["I'd like to book a table","Quisiera reservar una mesa"],
-      ["What time does the museum open?","¿A qué hora abre el museo?"],
-      ["Can you help me?","¿Puede ayudarme?"],
-      ["It's too expensive","Es demasiado caro"],
-      ["I'm looking for the train station","Estoy buscando la estación"],
-      ["The bill please","La cuenta por favor"],
-      ["I'm allergic to...","Soy alérgico a..."],
-      ["Call an ambulance!","¡Llame a una ambulancia!"],
-      ["Do you speak English?","¿Habla usted inglés?"],
-    ],
+    fr: {
+      debutant: [
+        ["Where is the station?","Où est la gare ?"],["My name is...","Je m'appelle..."],
+        ["I'm hungry","J'ai faim"],["How much is it?","Combien ça coûte ?"],["Do you speak English?","Parlez-vous anglais ?"],
+        ["I don't understand","Je ne comprends pas"],["Can you repeat?","Pouvez-vous répéter ?"],
+        ["Where are the toilets?","Où sont les toilettes ?"],["I'd like some water","Je voudrais de l'eau"],
+        ["At what time?","À quelle heure ?"],["Is it far?","C'est loin ?"],["Turn left","Tournez à gauche"],
+        ["Turn right","Tournez à droite"],["Straight ahead","Tout droit"],["Thank you very much","Merci beaucoup"],
+        ["You're welcome","De rien"],["Excuse me","Excusez-moi"],["Help!","Au secours !"],
+        ["I lost my passport","J'ai perdu mon passeport"],["I'm allergic","Je suis allergique"],
+      ],
+      moyen: [
+        ["Could you show me the way?","Pourriez-vous m'indiquer le chemin ?"],
+        ["I'd like to book a room","Je voudrais réserver une chambre"],
+        ["Do you accept cards?","Est-ce que vous acceptez les cartes ?"],
+        ["Can you call a doctor?","Pouvez-vous appeler un médecin ?"],
+        ["I'd like to cancel my reservation","Je souhaite annuler ma réservation"],
+        ["Is there an ATM nearby?","Y a-t-il un distributeur près d'ici ?"],
+        ["What time is the next train?","À quelle heure est le prochain train ?"],
+        ["Could you speak more slowly?","Pourriez-vous parler plus lentement ?"],
+        ["Is it included in the price?","Est-ce inclus dans le prix ?"],
+        ["Do you have a table for two?","Avez-vous une table pour deux ?"],
+        ["I'm vegetarian","Je suis végétarien"],["The bill please","L'addition s'il vous plaît"],
+        ["It was delicious","C'était délicieux"],["I need a plumber","J'ai besoin d'un plombier"],
+        ["The heating isn't working","Le chauffage ne fonctionne pas"],
+        ["I'd like to exchange money","Je voudrais changer de l'argent"],
+        ["My flight is cancelled","Mon vol est annulé"],
+        ["Can you give me a receipt?","Pouvez-vous me faire un reçu ?"],
+        ["There's an error on the bill","Il y a une erreur dans la facture"],
+        ["I'm looking for an apartment","Je cherche un appartement"],
+      ],
+      experimente: [
+        ["I'd like to submit a complaint","Je souhaiterais soumettre une réclamation"],
+        ["Could you provide me with proof?","Pourriez-vous me fournir un justificatif ?"],
+        ["To what extent is this negotiable?","Dans quelle mesure cela est-il négociable ?"],
+        ["I'd like to emphasize that...","Je tiens à souligner que..."],
+        ["It should be noted that...","Il convient de préciser que..."],
+        ["Without prejudice","Sous toutes réserves"],
+        ["In accordance with our agreement","Conformément à notre accord"],
+        ["I'm following up on our discussion","Je me permets de vous relancer"],
+        ["Please find attached","Veuillez trouver ci-joint"],
+        ["Looking forward to hearing from you","Dans l'attente de votre retour"],
+        ["I remain at your complete disposal","Je reste à votre entière disposition"],
+        ["That falls outside my remit","Cela ne relève pas de mes attributions"],
+        ["We've reached a deadlock","Nous sommes dans l'impasse"],
+        ["We need to settle this matter","Il faut trancher la question"],
+        ["Allow me to qualify my statement","Permettez-moi de nuancer mon propos"],
+        ["All things being equal","Toutes choses égales par ailleurs"],
+        ["This is a case of force majeure","Il s'agit d'un cas de force majeure"],
+        ["I appeal to your understanding","Je sollicite votre bienveillance"],
+        ["This warrants careful consideration","Cela mérite réflexion approfondie"],
+        ["Subject to confirmation","Sous réserve de confirmation"],
+      ],
+    },
+    es: {
+      debutant: [
+        ["Where is the station?","¿Dónde está la estación?"],["My name is...","Me llamo..."],
+        ["I'm hungry","Tengo hambre"],["How much is it?","¿Cuánto cuesta?"],["Do you speak English?","¿Habla inglés?"],
+        ["I don't understand","No entiendo"],["Can you repeat?","¿Puede repetir?"],
+        ["Where are the toilets?","¿Dónde están los baños?"],["I'd like some water","Quisiera agua"],
+        ["Is it far?","¿Está lejos?"],["Turn left","Gire a la izquierda"],["Turn right","Gire a la derecha"],
+        ["Straight ahead","Todo recto"],["Thank you very much","Muchas gracias"],["You're welcome","De nada"],
+        ["Excuse me","Perdone"],["Help!","¡Socorro!"],["I lost my passport","Perdí mi pasaporte"],
+        ["I'm allergic","Soy alérgico"],["At what time?","¿A qué hora?"],
+      ],
+      moyen: [
+        ["Could you show me the way?","¿Podría indicarme el camino?"],
+        ["I'd like to book a room","Quisiera reservar una habitación"],
+        ["Do you accept cards?","¿Aceptan tarjetas?"],["Can you call a doctor?","¿Puede llamar a un médico?"],
+        ["Is there an ATM nearby?","¿Hay un cajero automático cerca?"],
+        ["Could you speak more slowly?","¿Podría hablar más despacio?"],
+        ["Is it included in the price?","¿Está incluido en el precio?"],
+        ["Do you have a table for two?","¿Tienen mesa para dos?"],
+        ["I'm vegetarian","Soy vegetariano"],["The bill please","La cuenta por favor"],
+        ["It was delicious","Estaba delicioso"],["I need a plumber","Necesito un fontanero"],
+        ["The heating isn't working","La calefacción no funciona"],
+        ["I'd like to exchange money","Quisiera cambiar dinero"],
+        ["My flight is cancelled","Mi vuelo está cancelado"],
+        ["There's an error on the bill","Hay un error en la factura"],
+        ["I'm looking for an apartment","Busco un apartamento"],
+        ["I'd like to cancel my reservation","Deseo cancelar mi reserva"],
+        ["Can you give me a receipt?","¿Puede darme un recibo?"],
+        ["What time is the next train?","¿A qué hora sale el próximo tren?"],
+      ],
+      experimente: [
+        ["I'd like to submit a complaint","Desearía presentar una reclamación"],
+        ["To what extent is this negotiable?","¿En qué medida es negociable?"],
+        ["I'd like to emphasize that...","Quiero destacar que..."],
+        ["In accordance with our agreement","De conformidad con nuestro acuerdo"],
+        ["Please find attached","Adjunto encontrará"],
+        ["Looking forward to hearing from you","En espera de su respuesta"],
+        ["I remain at your complete disposal","Quedo a su entera disposición"],
+        ["We've reached a deadlock","Estamos en un punto muerto"],
+        ["This is a case of force majeure","Se trata de un caso de fuerza mayor"],
+        ["Subject to confirmation","A reserva de confirmación"],
+        ["All things being equal","En igualdad de condiciones"],
+        ["Allow me to qualify my statement","Permítame matizar mi postura"],
+        ["That falls outside my remit","Eso no es de mi competencia"],
+        ["We need to settle this matter","Hay que zanjar la cuestión"],
+        ["Could you provide me with proof?","¿Podría proporcionarme un justificante?"],
+        ["This warrants careful consideration","Merece reflexión profunda"],
+        ["I appeal to your understanding","Apelo a su comprensión"],
+        ["Without prejudice","Sin perjuicio de"],
+        ["I'm following up on our discussion","Me permito recordarle nuestro acuerdo"],
+        ["It should be noted that...","Conviene precisar que..."],
+      ],
+    },
   },
   es: {
-    fr: [
-      ["¿Puedes repetir por favor?","Peux-tu répéter s'il te plaît ?"],
-      ["Quisiera reservar una mesa","Je voudrais réserver une table"],
-      ["¿A qué hora abre el museo?","À quelle heure ouvre le musée ?"],
-      ["¿Puede ayudarme?","Pouvez-vous m'aider ?"],
-      ["Es demasiado caro","C'est trop cher"],
-      ["Estoy buscando la estación","Je cherche la gare"],
-      ["La cuenta por favor","L'addition s'il vous plaît"],
-      ["Soy alérgico a...","Je suis allergique à..."],
-      ["¡Llame a una ambulancia!","Appelez une ambulance !"],
-      ["¿Habla usted español?","Parlez-vous espagnol ?"],
-    ],
-    en: [
-      ["¿Puedes repetir por favor?","Could you repeat that please?"],
-      ["Quisiera reservar una mesa","I'd like to book a table"],
-      ["¿A qué hora abre el museo?","What time does the museum open?"],
-      ["¿Puede ayudarme?","Can you help me?"],
-      ["Es demasiado caro","It's too expensive"],
-      ["Estoy buscando la estación","I'm looking for the train station"],
-      ["La cuenta por favor","The bill please"],
-      ["Soy alérgico a...","I'm allergic to..."],
-      ["¡Llame a una ambulancia!","Call an ambulance!"],
-      ["¿Habla usted español?","Do you speak Spanish?"],
-    ],
+    fr: {
+      debutant: [
+        ["¿Dónde está la estación?","Où est la gare ?"],["Me llamo...","Je m'appelle..."],
+        ["Tengo hambre","J'ai faim"],["¿Cuánto cuesta?","Combien ça coûte ?"],["¿Habla francés?","Parlez-vous français ?"],
+        ["No entiendo","Je ne comprends pas"],["¿Puede repetir?","Pouvez-vous répéter ?"],
+        ["¿Dónde están los baños?","Où sont les toilettes ?"],["Quisiera agua","Je voudrais de l'eau"],
+        ["¿A qué hora?","À quelle heure ?"],["¿Está lejos?","C'est loin ?"],["Gire a la izquierda","Tournez à gauche"],
+        ["Gire a la derecha","Tournez à droite"],["Todo recto","Tout droit"],["Muchas gracias","Merci beaucoup"],
+        ["De nada","De rien"],["Perdone","Excusez-moi"],["¡Socorro!","Au secours !"],
+        ["Perdí mi pasaporte","J'ai perdu mon passeport"],["Soy alérgico","Je suis allergique"],
+      ],
+      moyen: [
+        ["¿Podría indicarme el camino?","Pourriez-vous m'indiquer le chemin ?"],
+        ["Quisiera reservar una habitación","Je voudrais réserver une chambre"],
+        ["¿Aceptan tarjetas?","Est-ce que vous acceptez les cartes ?"],
+        ["¿Puede llamar a un médico?","Pouvez-vous appeler un médecin ?"],
+        ["¿Hay un cajero automático cerca?","Y a-t-il un distributeur près d'ici ?"],
+        ["¿Podría hablar más despacio?","Pourriez-vous parler plus lentement ?"],
+        ["¿Está incluido en el precio?","Est-ce inclus dans le prix ?"],
+        ["¿Tienen mesa para dos?","Avez-vous une table pour deux ?"],
+        ["Soy vegetariano","Je suis végétarien"],["La cuenta por favor","L'addition s'il vous plaît"],
+        ["Estaba delicioso","C'était délicieux"],["Necesito un fontanero","J'ai besoin d'un plombier"],
+        ["La calefacción no funciona","Le chauffage ne fonctionne pas"],
+        ["Quisiera cambiar dinero","Je voudrais changer de l'argent"],
+        ["Mi vuelo está cancelado","Mon vol est annulé"],
+        ["Hay un error en la factura","Il y a une erreur dans la facture"],
+        ["Busco un apartamento","Je cherche un appartement"],
+        ["Deseo cancelar mi reserva","Je souhaite annuler ma réservation"],
+        ["¿Puede darme un recibo?","Pouvez-vous me faire un reçu ?"],
+        ["¿A qué hora sale el próximo tren?","À quelle heure est le prochain train ?"],
+      ],
+      experimente: [
+        ["Desearía presentar una reclamación","Je souhaiterais soumettre une réclamation"],
+        ["¿En qué medida es negociable?","Dans quelle mesure cela est-il négociable ?"],
+        ["Quiero destacar que...","Je tiens à souligner que..."],
+        ["De conformidad con nuestro acuerdo","Conformément à notre accord"],
+        ["Adjunto encontrará","Veuillez trouver ci-joint"],
+        ["En espera de su respuesta","Dans l'attente de votre retour"],
+        ["Quedo a su entera disposición","Je reste à votre entière disposition"],
+        ["Estamos en un punto muerto","Nous sommes dans l'impasse"],
+        ["Se trata de un caso de fuerza mayor","Il s'agit d'un cas de force majeure"],
+        ["A reserva de confirmación","Sous réserve de confirmation"],
+        ["En igualdad de condiciones","Toutes choses égales par ailleurs"],
+        ["Permítame matizar mi postura","Permettez-moi de nuancer mon propos"],
+        ["Eso no es de mi competencia","Cela ne relève pas de mes attributions"],
+        ["Hay que zanjar la cuestión","Il faut trancher la question"],
+        ["¿Podría proporcionarme un justificante?","Pourriez-vous me fournir un justificatif ?"],
+        ["Merece reflexión profunda","Cela mérite réflexion approfondie"],
+        ["Apelo a su comprensión","Je sollicite votre bienveillance"],
+        ["Sin perjuicio de","Sous toutes réserves"],
+        ["Me permito recordarle nuestro acuerdo","Je me permets de vous relancer"],
+        ["Conviene precisar que...","Il convient de préciser que..."],
+      ],
+    },
+    en: {
+      debutant: [
+        ["¿Dónde está la estación?","Where is the station?"],["Me llamo...","My name is..."],
+        ["Tengo hambre","I'm hungry"],["¿Cuánto cuesta?","How much is it?"],["¿Habla inglés?","Do you speak English?"],
+        ["No entiendo","I don't understand"],["¿Puede repetir?","Can you repeat?"],
+        ["¿Dónde están los baños?","Where are the toilets?"],["Quisiera agua","I'd like some water"],
+        ["¿A qué hora?","At what time?"],["¿Está lejos?","Is it far?"],["Gire a la izquierda","Turn left"],
+        ["Gire a la derecha","Turn right"],["Todo recto","Straight ahead"],["Muchas gracias","Thank you very much"],
+        ["De nada","You're welcome"],["Perdone","Excuse me"],["¡Socorro!","Help!"],
+        ["Perdí mi pasaporte","I lost my passport"],["Soy alérgico","I'm allergic"],
+      ],
+      moyen: [
+        ["¿Podría indicarme el camino?","Could you show me the way?"],
+        ["Quisiera reservar una habitación","I'd like to book a room"],
+        ["¿Aceptan tarjetas?","Do you accept cards?"],["¿Puede llamar a un médico?","Can you call a doctor?"],
+        ["¿Hay un cajero automático cerca?","Is there an ATM nearby?"],
+        ["¿Podría hablar más despacio?","Could you speak more slowly?"],
+        ["¿Está incluido en el precio?","Is it included in the price?"],
+        ["¿Tienen mesa para dos?","Do you have a table for two?"],
+        ["Soy vegetariano","I'm vegetarian"],["La cuenta por favor","The bill please"],
+        ["Estaba delicioso","It was delicious"],["Necesito un fontanero","I need a plumber"],
+        ["La calefacción no funciona","The heating isn't working"],
+        ["Quisiera cambiar dinero","I'd like to exchange money"],
+        ["Mi vuelo está cancelado","My flight is cancelled"],
+        ["Hay un error en la factura","There's an error on the bill"],
+        ["Busco un apartamento","I'm looking for an apartment"],
+        ["Deseo cancelar mi reserva","I'd like to cancel my reservation"],
+        ["¿Puede darme un recibo?","Can you give me a receipt?"],
+        ["¿A qué hora sale el próximo tren?","What time is the next train?"],
+      ],
+      experimente: [
+        ["Desearía presentar una reclamación","I'd like to submit a complaint"],
+        ["¿En qué medida es negociable?","To what extent is this negotiable?"],
+        ["Quiero destacar que...","I'd like to emphasize that..."],
+        ["De conformidad con nuestro acuerdo","In accordance with our agreement"],
+        ["Adjunto encontrará","Please find attached"],
+        ["En espera de su respuesta","Looking forward to hearing from you"],
+        ["Quedo a su entera disposición","I remain at your complete disposal"],
+        ["Estamos en un punto muerto","We've reached a deadlock"],
+        ["Se trata de un caso de fuerza mayor","This is a case of force majeure"],
+        ["A reserva de confirmación","Subject to confirmation"],
+        ["En igualdad de condiciones","All things being equal"],
+        ["Permítame matizar mi postura","Allow me to qualify my statement"],
+        ["Eso no es de mi competencia","That falls outside my remit"],
+        ["Hay que zanjar la cuestión","We need to settle this matter"],
+        ["¿Podría proporcionarme un justificante?","Could you provide me with proof?"],
+        ["Merece reflexión profunda","This warrants careful consideration"],
+        ["Apelo a su comprensión","I appeal to your understanding"],
+        ["Sin perjuicio de","Without prejudice"],
+        ["Me permito recordarle nuestro acuerdo","I'm following up on our discussion"],
+        ["Conviene precisar que...","It should be noted that..."],
+      ],
+    },
   },
 };
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function normaliserReponse(str) {
   return str.toLowerCase()
@@ -338,6 +778,7 @@ function normaliserReponse(str) {
     .trim();
 }
 // =============================================
+
 
 const BADGES_TRADUCTIONS = {
   premiere_revision: { fr: ["Première étincelle", "Tu as fait ta première révision !"], en: ["First spark", "You did your first study session!"], es: ["Primera chispa", "¡Hiciste tu primera revisión!"] },
@@ -1402,7 +1843,10 @@ function JeuCalculMental({ v, t, langue, onClose }) {
 }
 
 function JeuCapitales({ v, t, langue, onClose }) {
-  const [idx, setIdx] = useState(() => Math.floor(Math.random()*CAPITALES.length));
+  const niveauxLabels = { debutant: langue === "en" ? "Beginner" : langue === "es" ? "Principiante" : "Débutant", moyen: langue === "en" ? "Intermediate" : langue === "es" ? "Intermedio" : "Moyen", experimente: langue === "en" ? "Expert" : langue === "es" ? "Experto" : "Expérimenté" };
+  const [niveau, setNiveau] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [idx, setIdx] = useState(0);
   const [reponse, setReponse] = useState("");
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState(0);
@@ -1410,56 +1854,76 @@ function JeuCapitales({ v, t, langue, onClose }) {
   const MAX = 10;
   const [termine, setTermine] = useState(false);
 
-  const suivant = () => {
-    setIdx(Math.floor(Math.random()*CAPITALES.length));
-    setReponse(""); setFeedback(null);
+  const demarrer = (niv) => {
+    setNiveau(niv);
+    const pool = [...CAPITALES_PAR_NIVEAU[niv], ...CAPITALES_PAR_NIVEAU.debutant].filter(Boolean);
+    setQuestions(shuffleArray(pool).slice(0, MAX * 3)); // large pool
+    setIdx(0); setScore(0); setNb(0); setTermine(false); setFeedback(null); setReponse("");
   };
 
   const valider = () => {
-    if (!reponse.trim()) return;
-    const correct = normaliserReponse(reponse) === normaliserReponse(CAPITALES[idx][1]);
-    setFeedback(correct ? "✅" : `❌ ${CAPITALES[idx][1]}`);
+    if (!reponse.trim() || !questions[idx]) return;
+    const correct = normaliserReponse(reponse) === normaliserReponse(questions[idx][1]);
+    setFeedback(correct ? "✅" : `❌ ${questions[idx][1]}`);
     if (correct) setScore(s => s+1);
     setNb(n => n+1);
     setTimeout(() => {
       if (nb+1 >= MAX) setTermine(true);
-      else suivant();
+      else { setIdx(i => i+1); setReponse(""); setFeedback(null); }
     }, 1000);
   };
+
+  if (!niveau) return (
+    <div style={{ textAlign: "center", padding: "1rem" }}>
+      <div style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>🌍</div>
+      <div style={{ fontWeight: 700, color: v.text, marginBottom: "1.2rem" }}>{langue === "en" ? "Choose your level" : langue === "es" ? "Elige tu nivel" : "Choisis ton niveau"}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+        {["debutant","moyen","experimente"].map(niv => (
+          <button key={niv} onClick={() => demarrer(niv)} style={{ padding: "0.8rem", borderRadius: 12, border: `2px solid ${v.accent}`, background: v.accentBg, color: v.accent, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: "0.95rem" }}>
+            {niv === "debutant" ? "🟢" : niv === "moyen" ? "🟡" : "🔴"} {niveauxLabels[niv]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   if (termine) return (
     <div style={{ textAlign: "center", padding: "2rem" }}>
       <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{score >= 8 ? "🌍" : score >= 5 ? "👍" : "💪"}</div>
       <div style={{ fontSize: "1.5rem", fontWeight: 800, color: v.accent }}>{score}/{MAX}</div>
       <div style={{ color: v.textMuted, marginBottom: "1.5rem" }}>{langue === "en" ? "Good job!" : langue === "es" ? "¡Bien hecho!" : "Bien joué !"}</div>
-      <button onClick={() => { setScore(0); setNb(0); setTermine(false); suivant(); }} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
+      <div style={{ display: "flex", gap: "0.6rem", justifyContent: "center", flexWrap: "wrap" }}>
+        <button onClick={() => demarrer(niveau)} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.2rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
+        <button onClick={() => setNiveau(null)} style={{ background: "transparent", border: `1px solid ${v.accent}`, borderRadius: 50, padding: "0.6rem 1.2rem", cursor: "pointer", fontFamily: "inherit", color: v.accent, fontWeight: 700 }}>{langue === "en" ? "Change level" : langue === "es" ? "Cambiar nivel" : "Changer de niveau"}</button>
+      </div>
     </div>
   );
 
   return (
     <div style={{ textAlign: "center", padding: "1rem" }}>
-      <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>{nb+1}/{MAX} — Score: {score}</div>
+      <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>{nb+1}/{MAX} — Score: {score} — {niveauxLabels[niveau]}</div>
       <div style={{ fontSize: "1.1rem", color: v.textMuted, marginBottom: "0.3rem" }}>{langue === "en" ? "Capital of" : langue === "es" ? "Capital de" : "Capitale de"}</div>
-      <div style={{ fontSize: "2rem", fontWeight: 800, color: v.text, marginBottom: "1.2rem" }}>🌍 {CAPITALES[idx][0]}</div>
+      <div style={{ fontSize: "2rem", fontWeight: 800, color: v.text, marginBottom: "1.2rem" }}>🌍 {questions[idx]?.[0]}</div>
       {feedback && <div style={{ fontSize: "1.3rem", marginBottom: "0.5rem" }}>{feedback}</div>}
-      <input
-        value={reponse} onChange={e => setReponse(e.target.value)}
-        onKeyDown={e => e.key === "Enter" && valider()}
+      <input value={reponse} onChange={e => setReponse(e.target.value)} onKeyDown={e => e.key === "Enter" && valider()}
         placeholder={langue === "en" ? "Your answer..." : langue === "es" ? "Tu respuesta..." : "Ta réponse..."}
-        autoFocus
+        autoFocus disabled={!!feedback}
         style={{ width: "80%", textAlign: "center", fontSize: "1.1rem", padding: "0.5rem", borderRadius: 12, border: `2px solid ${v.accent}`, background: v.inputBg, color: v.text, fontFamily: "inherit", outline: "none" }}
       />
       <div style={{ marginTop: "1rem" }}>
-        <button onClick={valider} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Validate" : langue === "es" ? "Validar" : "Valider"}</button>
+        <button onClick={valider} disabled={!!feedback} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Validate" : langue === "es" ? "Validar" : "Valider"}</button>
       </div>
     </div>
   );
 }
 
+
 function JeuFlashcards({ v, langue, onClose, type }) {
-  const langues = Object.keys(FLASHCARDS[langue] || FLASHCARDS["fr"]);
+  const niveauxLabels = { debutant: langue === "en" ? "Beginner" : langue === "es" ? "Principiante" : "Débutant", moyen: langue === "en" ? "Intermediate" : langue === "es" ? "Intermedio" : "Moyen", experimente: langue === "en" ? "Expert" : langue === "es" ? "Experto" : "Expérimenté" };
+  const langues = Object.keys(type === "phrases" ? (PHRASES_PAR_NIVEAU[langue] || PHRASES_PAR_NIVEAU["fr"]) : (FLASHCARDS_PAR_NIVEAU[langue] || FLASHCARDS_PAR_NIVEAU["fr"]));
   const [langCible, setLangCible] = useState(langues[0]);
-  const data = type === "phrases" ? (PHRASES_QUOTIDIEN[langue]?.[langCible] || PHRASES_QUOTIDIEN["fr"][langCible] || []) : (FLASHCARDS[langue]?.[langCible] || FLASHCARDS["fr"][langCible] || []);
+  const [niveau, setNiveau] = useState(null);
+  const [deck, setDeck] = useState([]);
   const [idx, setIdx] = useState(0);
   const [retourne, setRetourne] = useState(false);
   const [sus, setSus] = useState(0);
@@ -1467,29 +1931,64 @@ function JeuFlashcards({ v, langue, onClose, type }) {
 
   const langNoms = { fr: "Français", en: "English", es: "Español", de: "Deutsch" };
 
+  const demarrer = (niv) => {
+    setNiveau(niv);
+    const source = type === "phrases"
+      ? (PHRASES_PAR_NIVEAU[langue]?.[langCible]?.[niv] || PHRASES_PAR_NIVEAU["fr"]?.[langCible]?.[niv] || [])
+      : (FLASHCARDS_PAR_NIVEAU[langue]?.[langCible]?.[niv] || FLASHCARDS_PAR_NIVEAU["fr"]?.[langCible]?.[niv] || []);
+    setDeck(shuffleArray(source));
+    setIdx(0); setRetourne(false); setSus(0); setPas(0);
+  };
+
   const suivant = (ok) => {
     if (ok) setSus(s => s+1); else setPas(p => p+1);
     setRetourne(false);
-    setTimeout(() => setIdx(i => (i+1) % data.length), 150);
+    setTimeout(() => {
+      if (idx + 1 >= deck.length) {
+        // reshuffle for infinite variety
+        const source = type === "phrases"
+          ? (PHRASES_PAR_NIVEAU[langue]?.[langCible]?.[niveau] || [])
+          : (FLASHCARDS_PAR_NIVEAU[langue]?.[langCible]?.[niveau] || []);
+        setDeck(shuffleArray(source));
+        setIdx(0);
+      } else {
+        setIdx(i => i+1);
+      }
+    }, 150);
   };
 
-  if (!data.length) return <div style={{ textAlign: "center", color: v.textMuted, padding: "2rem" }}>Pas de données disponibles</div>;
-
-  return (
-    <div style={{ textAlign: "center", padding: "0.5rem" }}>
+  if (!niveau) return (
+    <div style={{ textAlign: "center", padding: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         {langues.map(l => (
-          <button key={l} onClick={() => { setLangCible(l); setIdx(0); setRetourne(false); }}
+          <button key={l} onClick={() => { setLangCible(l); setNiveau(null); }}
             style={{ padding: "0.3rem 0.8rem", borderRadius: 50, border: `1px solid ${langCible === l ? v.accent : v.inputBorder}`, background: langCible === l ? v.accentBg : "transparent", color: langCible === l ? v.accent : v.textMuted, cursor: "pointer", fontSize: "0.8rem", fontFamily: "inherit" }}>
             {langNoms[l] || l}
           </button>
         ))}
       </div>
-      <div style={{ fontSize: "0.8rem", color: v.textMuted, marginBottom: "0.8rem" }}>✅ {sus} / ❌ {pas}</div>
-      <div
-        onClick={() => setRetourne(r => !r)}
-        style={{ cursor: "pointer", minHeight: 120, background: retourne ? v.accentBg : v.cardBg, border: `2px solid ${v.accent}`, borderRadius: 20, padding: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: 600, color: retourne ? v.accent : v.text, transition: "all 0.3s", marginBottom: "1rem" }}>
-        {retourne ? data[idx][1] : data[idx][0]}
+      <div style={{ fontWeight: 700, color: v.text, marginBottom: "1.2rem" }}>{langue === "en" ? "Choose your level" : langue === "es" ? "Elige tu nivel" : "Choisis ton niveau"}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+        {["debutant","moyen","experimente"].map(niv => (
+          <button key={niv} onClick={() => demarrer(niv)} style={{ padding: "0.8rem", borderRadius: 12, border: `2px solid ${v.accent}`, background: v.accentBg, color: v.accent, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: "0.95rem" }}>
+            {niv === "debutant" ? "🟢" : niv === "moyen" ? "🟡" : "🔴"} {niveauxLabels[niv]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (!deck.length) return <div style={{ textAlign: "center", color: v.textMuted, padding: "2rem" }}>Pas de données disponibles</div>;
+
+  return (
+    <div style={{ textAlign: "center", padding: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
+        <button onClick={() => setNiveau(null)} style={{ background: "transparent", border: "none", color: v.textMuted, cursor: "pointer", fontSize: "0.8rem", fontFamily: "inherit" }}>← {niveauxLabels[niveau]}</button>
+        <div style={{ fontSize: "0.8rem", color: v.textMuted }}>✅ {sus} / ❌ {pas}</div>
+      </div>
+      <div onClick={() => setRetourne(r => !r)}
+        style={{ cursor: "pointer", minHeight: 120, background: retourne ? v.accentBg : v.cardBg, border: `2px solid ${v.accent}`, borderRadius: 20, padding: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", fontWeight: 600, color: retourne ? v.accent : v.text, transition: "all 0.3s", marginBottom: "1rem" }}>
+        {retourne ? deck[idx]?.[1] : deck[idx]?.[0]}
       </div>
       <div style={{ fontSize: "0.78rem", color: v.textMuted, marginBottom: "1rem" }}>👆 {langue === "en" ? "Tap to reveal" : langue === "es" ? "Toca para revelar" : "Appuie pour retourner"}</div>
       {retourne && (
@@ -1502,60 +2001,6 @@ function JeuFlashcards({ v, langue, onClose, type }) {
   );
 }
 
-
-function PremiumModal({ v, langue, onClose, onActivate }) {
-  const [code, setCode] = useState("");
-  const [erreur, setErreur] = useState(false);
-  const CODE_SECRET = "JULIA.OLV";
-  const prix = langue === "en" ? "$3.29/mo" : langue === "es" ? "2,99€/mes" : "2,99€/mois";
-
-  const tenter = () => {
-    if (code.trim().toUpperCase() === CODE_SECRET) {
-      onActivate();
-      onClose();
-    } else {
-      setErreur(true);
-      setTimeout(() => setErreur(false), 2000);
-    }
-  };
-
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 400, boxShadow: "0 16px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
-        <div style={{ background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", padding: "2rem", textAlign: "center" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>⭐</div>
-          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff" }}>Mindup Premium</div>
-          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.9rem", marginTop: "0.3rem" }}>{prix}</div>
-        </div>
-        <div style={{ padding: "1.5rem" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            {["✅ Quiz & résumés illimités", "✅ Graphique d'évolution", "✅ Pomodoro", "✅ Espace pause 🎮", "✅ Badge premium"].map(f => (
-              <div key={f} style={{ fontSize: "0.88rem", color: v.text, marginBottom: "0.4rem" }}>{f}</div>
-            ))}
-          </div>
-          <div style={{ borderTop: `1px solid ${v.cardBorder}`, paddingTop: "1rem" }}>
-            <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>
-              {langue === "en" ? "Have a code?" : langue === "es" ? "¿Tienes un código?" : "Tu as un code ?"}
-            </div>
-            <input
-              value={code} onChange={e => setCode(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && tenter()}
-              placeholder={langue === "en" ? "Enter your code" : langue === "es" ? "Introduce tu código" : "Entre ton code"}
-              style={{ width: "100%", padding: "0.6rem 1rem", borderRadius: 12, border: `2px solid ${erreur ? "#e74c3c" : v.inputBorder}`, background: v.inputBg, color: v.text, fontFamily: "inherit", fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
-            />
-            {erreur && <div style={{ color: "#e74c3c", fontSize: "0.8rem", marginTop: "0.3rem" }}>❌ Code invalide</div>}
-            <button onClick={tenter} style={{ width: "100%", marginTop: "0.8rem", background: "linear-gradient(135deg, #f6d365, #fda085)", color: "#fff", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.95rem" }}>
-              {langue === "en" ? "Activate" : langue === "es" ? "Activar" : "Activer"}
-            </button>
-          </div>
-          <button onClick={onClose} style={{ width: "100%", marginTop: "0.5rem", background: "transparent", border: "none", color: v.textMuted, cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem" }}>
-            {langue === "en" ? "Maybe later" : langue === "es" ? "Quizás después" : "Plus tard"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function EspacePause({ v, langue, onClose }) {
   const [jeu, setJeu] = useState(null);

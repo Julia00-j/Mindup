@@ -1856,8 +1856,8 @@ function JeuCapitales({ v, t, langue, onClose }) {
 
   const demarrer = (niv) => {
     setNiveau(niv);
-    const pool = [...CAPITALES_PAR_NIVEAU[niv], ...CAPITALES_PAR_NIVEAU.debutant].filter(Boolean);
-    setQuestions(shuffleArray(pool).slice(0, MAX * 3)); // large pool
+    const pool = [...CAPITALES_PAR_NIVEAU[niv]];
+    setQuestions(shuffleArray(pool));
     setIdx(0); setScore(0); setNb(0); setTermine(false); setFeedback(null); setReponse("");
   };
 
@@ -1997,6 +1997,62 @@ function JeuFlashcards({ v, langue, onClose, type }) {
           <button onClick={() => suivant(true)} style={{ background: "#27ae60", color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.3rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>✅ {langue === "en" ? "Got it" : langue === "es" ? "Lo sé" : "Je savais"}</button>
         </div>
       )}
+    </div>
+  );
+}
+
+
+function PremiumModal({ v, langue, onClose, onActivate }) {
+  const [code, setCode] = React.useState("");
+  const [erreur, setErreur] = React.useState(false);
+  const CODE_SECRET = "JULIA.OLV";
+  const prix = langue === "en" ? "$3.29/mo" : langue === "es" ? "2,99€/mes" : "2,99€/mois";
+
+  const tenter = () => {
+    if (code.trim() === CODE_SECRET) {
+      onActivate();
+      onClose();
+    } else {
+      setErreur(true);
+      setTimeout(() => setErreur(false), 2000);
+    }
+  };
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 600, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: v.cardBg, borderRadius: 24, width: "100%", maxWidth: 400, boxShadow: "0 16px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", padding: "2rem", textAlign: "center" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>⭐</div>
+          <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff" }}>Mindup Premium</div>
+          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "0.9rem", marginTop: "0.3rem" }}>{prix}</div>
+        </div>
+        <div style={{ padding: "1.5rem" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            {["✅ Quiz & résumés illimités", "✅ Graphique d'évolution", "✅ Pomodoro", "✅ Espace pause 🎮", "✅ Badge premium"].map(f => (
+              <div key={f} style={{ fontSize: "0.88rem", color: v.text, marginBottom: "0.4rem" }}>{f}</div>
+            ))}
+          </div>
+          <div style={{ borderTop: `1px solid ${v.cardBorder}`, paddingTop: "1rem" }}>
+            <div style={{ fontSize: "0.82rem", color: v.textMuted, marginBottom: "0.5rem" }}>
+              {langue === "en" ? "Have a code?" : langue === "es" ? "¿Tienes un código?" : "Tu as un code ?"}
+            </div>
+            <input
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && tenter()}
+              placeholder={langue === "en" ? "Enter your code" : langue === "es" ? "Introduce tu código" : "Entre ton code"}
+              style={{ width: "100%", padding: "0.6rem 1rem", borderRadius: 12, border: `2px solid ${erreur ? "#e74c3c" : v.inputBorder}`, background: v.inputBg, color: v.text, fontFamily: "inherit", fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
+            />
+            {erreur && <div style={{ color: "#e74c3c", fontSize: "0.8rem", marginTop: "0.3rem" }}>❌ Code invalide</div>}
+            <button type="button" onClick={tenter} style={{ width: "100%", marginTop: "0.8rem", background: "linear-gradient(135deg, #f6d365, #fda085)", color: "#fff", border: "none", borderRadius: 50, padding: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.95rem" }}>
+              {langue === "en" ? "Activate" : langue === "es" ? "Activar" : "Activer"}
+            </button>
+          </div>
+          <button type="button" onClick={onClose} style={{ width: "100%", marginTop: "0.5rem", background: "transparent", border: "none", color: v.textMuted, cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem" }}>
+            {langue === "en" ? "Maybe later" : langue === "es" ? "Quizás después" : "Plus tard"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2003,8 +2003,8 @@ function JeuFlashcards({ v, langue, onClose, type }) {
 
 
 function PremiumModal({ v, langue, onClose, onActivate }) {
-  const [code, setCode] = React.useState("");
-  const [erreur, setErreur] = React.useState(false);
+  const [code, setCode] = useState("");
+  const [erreur, setErreur] = useState(false);
   const CODE_SECRET = "JULIA.OLV";
   const prix = langue === "en" ? "$3.29/mo" : langue === "es" ? "2,99€/mes" : "2,99€/mois";
 

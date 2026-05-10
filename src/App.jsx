@@ -1650,9 +1650,31 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
 }
 
 // ─── PLANNING ─────────────────────────────────────────────────────────────────
-function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, setMoisActuel, matieres }) {
+function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, setMoisActuel, matieres, notesCalendrier, setNotesCalendrier }) {
   const isMobile = useIsMobile();
   const addExamen = () => setExamens([...examens, { matiere: "Français", date: "", nom: "" }]);
+  const [modalNote, setModalNote] = useState(null); // { key, jour }
+  const [noteTemp, setNoteTemp] = useState("");
+  const [couleurTemp, setCouleurTemp] = useState("#fda085");
+  const COULEURS_NOTE = ["#fda085","#f6d365","#27ae60","#3498db","#9b59b6","#e74c3c","#1abc9c","#e67e22"];
+
+  const ouvrirModal = (key, jour) => {
+    const existing = notesCalendrier?.[key];
+    setNoteTemp(existing?.texte || "");
+    setCouleurTemp(existing?.couleur || "#fda085");
+    setModalNote({ key, jour });
+  };
+  const sauvegarderNote = () => {
+    if (!modalNote) return;
+    const updated = { ...(notesCalendrier || {}) };
+    if (noteTemp.trim()) {
+      updated[modalNote.key] = { texte: noteTemp.trim(), couleur: couleurTemp };
+    } else {
+      delete updated[modalNote.key];
+    }
+    setNotesCalendrier(updated);
+    setModalNote(null);
+  };
   const removeExamen = (i) => setExamens(examens.filter((_, idx) => idx !== i));
   const updateExamen = (i, field, value) => { const u = [...examens]; u[i][field] = value; setExamens(u); };
   // Helper : formate une date en YYYY-MM-DD en heure locale (évite le décalage UTC)
@@ -1743,8 +1765,15 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
               const estMoisActuel = jour.getMonth() === mois;
               const estAujourdhui = jour.getTime() === today.getTime();
               return (
-                <div key={i} style={{ minHeight: isMobile ? 38 : 70, borderRadius: isMobile ? 6 : 12, padding: isMobile ? "2px" : "0.35rem", background: estAujourdhui ? v.accentBg : v.cardBg, border: `1px solid ${estAujourdhui ? v.accent : v.cardBorder}`, opacity: estMoisActuel ? 1 : 0.35, overflow: "hidden" }}>
-                  <div style={{ fontSize: isMobile ? "0.65rem" : "0.78rem", fontWeight: estAujourdhui ? 700 : 400, color: estAujourdhui ? v.accent : v.text }}>{jour.getDate()}</div>
+                <div key={i}
+                  onClick={() => estMoisActuel && ouvrirModal(key, jour)}
+                  style={{ minHeight: isMobile ? 38 : 70, borderRadius: isMobile ? 6 : 12, padding: isMobile ? "2px" : "0.35rem", background: notesCalendrier?.[key]?.couleur ? `${notesCalendrier[key].couleur}25` : estAujourdhui ? v.accentBg : v.cardBg, border: `2px solid ${notesCalendrier?.[key]?.couleur || (estAujourdhui ? v.accent : v.cardBorder)}`, opacity: estMoisActuel ? 1 : 0.35, overflow: "hidden", cursor: estMoisActuel ? "pointer" : "default", transition: "border-color 0.2s" }}>
+                  <div style={{ fontSize: isMobile ? "0.65rem" : "0.78rem", fontWeight: estAujourdhui ? 700 : 400, color: notesCalendrier?.[key]?.couleur || (estAujourdhui ? v.accent : v.text) }}>{jour.getDate()}</div>
+                  {notesCalendrier?.[key] && (
+                    <div style={{ fontSize: isMobile ? "0.5rem" : "0.58rem", color: notesCalendrier[key].couleur, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: "1px" }}>
+                      📌 {notesCalendrier[key].texte}
+                    </div>
+                  )}
                   {sessions.map((session, j) => (
                     <div key={j} style={{ fontSize: isMobile ? "0.55rem" : "0.6rem", padding: isMobile ? "1px 2px" : "0.1rem 0.25rem", borderRadius: 4, marginTop: "1px", background: session.isExam ? "rgba(212,160,23,0.2)" : session.isRepet ? `${COULEURS[session.matiere]}10` : `${COULEURS[session.matiere]}20`, border: `1px solid ${session.isExam ? "#d4a017" : COULEURS[session.matiere]}${session.isRepet ? "40" : "60"}`, borderStyle: session.isRepet ? "dashed" : "solid", color: session.isExam ? "#b8860b" : COULEURS[session.matiere], fontWeight: session.isRepet ? 400 : 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", opacity: session.isRepet ? 0.85 : 1 }}>
                       {isMobile ? session.type : session.isRepet ? `${session.matiere} 🔁` : session.nom ? `${session.matiere} · ${session.nom} ${session.type}` : `${session.matiere} ${session.type}`}
@@ -1771,6 +1800,37 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
             ))}
           </div>
         </Card>
+      )}
+      {/* MODAL NOTE */}
+      {modalNote && (
+        <div onClick={() => setModalNote(null)} style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: v.cardBg, borderRadius: 20, padding: "1.5rem", width: "100%", maxWidth: 360, boxShadow: "0 12px 40px rgba(0,0,0,0.3)" }}>
+            <div style={{ fontWeight: 700, color: v.accent, marginBottom: "1rem", fontSize: "1rem" }}>
+              📌 {modalNote.jour.getDate()}/{modalNote.jour.getMonth()+1}/{modalNote.jour.getFullYear()}
+            </div>
+            <textarea
+              value={noteTemp}
+              onChange={e => setNoteTemp(e.target.value)}
+              placeholder={t.langue === "en" ? "Add a note..." : "Ajoute une note..."}
+              autoFocus
+              style={{ width: "100%", minHeight: 80, borderRadius: 12, border: `2px solid ${v.inputBorder}`, background: v.inputBg, color: v.text, fontFamily: "inherit", fontSize: "0.9rem", padding: "0.6rem", boxSizing: "border-box", resize: "vertical", outline: "none" }}
+            />
+            <div style={{ marginTop: "0.8rem", marginBottom: "1rem" }}>
+              <div style={{ fontSize: "0.8rem", color: v.textMuted, marginBottom: "0.4rem" }}>Couleur de la case :</div>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {COULEURS_NOTE.map(c => (
+                  <button key={c} onClick={() => setCouleurTemp(c)} style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: couleurTemp === c ? "3px solid #333" : "2px solid transparent", cursor: "pointer", outline: "none" }} />
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "0.6rem" }}>
+              <button onClick={sauvegarderNote} style={{ flex: 1, background: "linear-gradient(135deg,#f6d365,#fda085)", color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>💾 Sauvegarder</button>
+              {notesCalendrier?.[modalNote.key] && (
+                <button onClick={() => { const u = {...(notesCalendrier||{})}; delete u[modalNote.key]; setNotesCalendrier(u); setModalNote(null); }} style={{ background: "rgba(231,76,60,0.1)", border: "1px solid #e74c3c", color: "#e74c3c", borderRadius: 50, padding: "0.6rem 0.9rem", cursor: "pointer", fontFamily: "inherit" }}>🗑️</button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -2502,6 +2562,7 @@ export default function App() {
   const [examens, setExamens] = useLocalStorage("examens", [{ matiere: "Maths", date: "" }]);
   const [genere, setGenere] = useLocalStorage("genere", false);
   const [matieres, setMatieres] = useLocalStorage("matieres", MATIERES_DEFAULT);
+  const [notesCalendrier, setNotesCalendrier] = useLocalStorage("notesCalendrier", {});
   const [moisActuel, setMoisActuel] = useState(new Date());
   const [pomodoroVisible, setPomodoroVisible] = useState(false);
   const isMobile = useIsMobile();

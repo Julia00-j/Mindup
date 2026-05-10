@@ -1931,12 +1931,19 @@ function JeuFlashcards({ v, langue, onClose, type }) {
 
   const langNoms = { fr: "Français", en: "English", es: "Español", de: "Deutsch" };
 
+  const getDeck = (niv, lc) => {
+    const base = type === "phrases"
+      ? (PHRASES_PAR_NIVEAU[langue]?.[lc]?.[niv] || PHRASES_PAR_NIVEAU["fr"]?.[lc]?.[niv] || [])
+      : (FLASHCARDS_PAR_NIVEAU[langue]?.[lc]?.[niv] || FLASHCARDS_PAR_NIVEAU["fr"]?.[lc]?.[niv] || []);
+    const lower = niv === "moyen" ? (type === "phrases" ? (PHRASES_PAR_NIVEAU[langue]?.[lc]?.debutant || []) : (FLASHCARDS_PAR_NIVEAU[langue]?.[lc]?.debutant || [])) : [];
+    const upper = niv === "moyen" ? (type === "phrases" ? (PHRASES_PAR_NIVEAU[langue]?.[lc]?.experimente || []) : (FLASHCARDS_PAR_NIVEAU[langue]?.[lc]?.experimente || [])) : [];
+    const pool = [...base, ...shuffleArray(lower).slice(0,5), ...shuffleArray(upper).slice(0,5)];
+    return shuffleArray(pool);
+  };
+
   const demarrer = (niv) => {
     setNiveau(niv);
-    const source = type === "phrases"
-      ? (PHRASES_PAR_NIVEAU[langue]?.[langCible]?.[niv] || PHRASES_PAR_NIVEAU["fr"]?.[langCible]?.[niv] || [])
-      : (FLASHCARDS_PAR_NIVEAU[langue]?.[langCible]?.[niv] || FLASHCARDS_PAR_NIVEAU["fr"]?.[langCible]?.[niv] || []);
-    setDeck(shuffleArray(source));
+    setDeck(getDeck(niv, langCible));
     setIdx(0); setRetourne(false); setSus(0); setPas(0);
   };
 
@@ -1945,11 +1952,7 @@ function JeuFlashcards({ v, langue, onClose, type }) {
     setRetourne(false);
     setTimeout(() => {
       if (idx + 1 >= deck.length) {
-        // reshuffle for infinite variety
-        const source = type === "phrases"
-          ? (PHRASES_PAR_NIVEAU[langue]?.[langCible]?.[niveau] || [])
-          : (FLASHCARDS_PAR_NIVEAU[langue]?.[langCible]?.[niveau] || []);
-        setDeck(shuffleArray(source));
+        setDeck(getDeck(niveau, langCible));
         setIdx(0);
       } else {
         setIdx(i => i+1);
@@ -1961,7 +1964,7 @@ function JeuFlashcards({ v, langue, onClose, type }) {
     <div style={{ textAlign: "center", padding: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         {langues.map(l => (
-          <button key={l} onClick={() => { setLangCible(l); setNiveau(null); }}
+          <button key={l} onClick={() => { setLangCible(l); if (niveau) { setDeck(getDeck(niveau, l)); setIdx(0); setRetourne(false); } else { setNiveau(null); } }}
             style={{ padding: "0.3rem 0.8rem", borderRadius: 50, border: `1px solid ${langCible === l ? v.accent : v.inputBorder}`, background: langCible === l ? v.accentBg : "transparent", color: langCible === l ? v.accent : v.textMuted, cursor: "pointer", fontSize: "0.8rem", fontFamily: "inherit" }}>
             {langNoms[l] || l}
           </button>
@@ -2119,10 +2122,12 @@ function Resume({ t, v, ajouterHistorique, matieres, langue, peutGenerer, isPrem
     setLoading(false);
   };
 
-  const limiteBannerR = !isPremium && (
+  const limiteBannerR = isPremium ? (
+    <div style={{ textAlign: "right", fontSize: "0.75rem", color: "#b8860b", opacity: 0.75, marginBottom: "0.4rem", fontStyle: "italic" }}>⭐ {langue === "en" ? "Unlimited summaries" : langue === "es" ? "Resúmenes ilimitados" : "Résumés illimités"}</div>
+  ) : (
     <div style={{ padding: "0.6rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.12)" : "rgba(253,160,133,0.12)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
       <span style={{ color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
-        {usageAujourdhui >= limiteJour ? "🔒 Limite atteinte" : `📊 ${usageAujourdhui}/${limiteJour} aujourd'hui`}
+        {usageAujourdhui >= limiteJour ? `🔒 ${langue === "en" ? "Limit reached" : langue === "es" ? "Límite alcanzado" : "Limite atteinte"}` : `📊 ${usageAujourdhui}/${limiteJour} ${langue === "en" ? "today — 3/day max" : langue === "es" ? "hoy — 3/día max" : "aujourd'hui — 3 par jour"}`}
       </span>
       <button onClick={onPremium} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.3rem 0.8rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</button>
     </div>
@@ -2226,10 +2231,12 @@ ${texte.slice(0, 4000)}`);
           <SelectStyle v={v} value={matiere} onChange={e => setMatiere(e.target.value)} style={{ marginBottom: "0.8rem" }}>
             {matieres.map(m => <option key={m} value={m}>{m}</option>)}
           </SelectStyle>
-  const limiteBannerQ = !isPremium && (
+  const limiteBannerQ = isPremium ? (
+    <div style={{ textAlign: "right", fontSize: "0.75rem", color: "#b8860b", opacity: 0.75, marginBottom: "0.4rem", fontStyle: "italic" }}>⭐ {langue === "en" ? "Unlimited quizzes" : langue === "es" ? "Quizzes ilimitados" : "Quiz illimités"}</div>
+  ) : (
     <div style={{ padding: "0.6rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.12)" : "rgba(253,160,133,0.12)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
       <span style={{ color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
-        {usageAujourdhui >= limiteJour ? "🔒 Limite atteinte" : `📊 ${usageAujourdhui}/${limiteJour} aujourd'hui`}
+        {usageAujourdhui >= limiteJour ? `🔒 ${langue === "en" ? "Limit reached" : langue === "es" ? "Límite alcanzado" : "Limite atteinte"}` : `📊 ${usageAujourdhui}/${limiteJour} ${langue === "en" ? "today — 3/day max" : langue === "es" ? "hoy — 3/día max" : "aujourd'hui — 3 par jour"}`}
       </span>
       <button onClick={onPremium} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.3rem 0.8rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</button>
     </div>

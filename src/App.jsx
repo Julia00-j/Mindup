@@ -1780,6 +1780,72 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
 
 // ============ COMPOSANTS JEUX ============
 
+function ConfettiEcran({ score, total, onRejouer, onChanger, langue, v, type }) {
+  const msgs = {
+    parfait: langue === "en" ? ["🏆 Perfect!", "Incredible, 100%!"] : langue === "es" ? ["🏆 ¡Perfecto!", "¡Increíble, 100%!"] : ["🏆 Parfait !", "Incroyable, 100% !"],
+    excellent: langue === "en" ? ["🌟 Excellent!", "Keep it up!"] : langue === "es" ? ["🌟 ¡Excelente!", "¡Sigue así!"] : ["🌟 Excellent !", "Continue comme ça !"],
+    bien: langue === "en" ? ["👍 Good job!", "You're making progress!"] : langue === "es" ? ["👍 ¡Bien hecho!", "¡Estás progresando!"] : ["👍 Bien joué !", "Tu progresses !"],
+    courage: langue === "en" ? ["💪 Keep going!", "Practice makes perfect!"] : langue === "es" ? ["💪 ¡Ánimo!", "¡La práctica hace al maestro!"] : ["💪 Courage !", "La pratique rend parfait !"],
+  };
+  const pct = Math.round(score / total * 100);
+  const msg = pct === 100 ? msgs.parfait : pct >= 70 ? msgs.excellent : pct >= 40 ? msgs.bien : msgs.courage;
+  const colors = ["#f6d365","#fda085","#27ae60","#3498db","#9b59b6","#e74c3c","#f39c12"];
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 800, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.7)" }}>
+      {/* Confetti */}
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+        {Array.from({length: 40}).map((_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            left: `${Math.random()*100}%`,
+            top: `-${Math.random()*20+5}%`,
+            width: Math.random()*10+6,
+            height: Math.random()*10+6,
+            background: colors[i % colors.length],
+            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+            animation: `confettiFall ${Math.random()*2+2}s ${Math.random()*1.5}s ease-in forwards`,
+            transform: `rotate(${Math.random()*360}deg)`,
+          }} />
+        ))}
+      </div>
+      <style>{`
+        @keyframes confettiFall {
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        @keyframes popIn {
+          0% { transform: scale(0.5); opacity: 0; }
+          70% { transform: scale(1.05); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+      {/* Card */}
+      <div style={{ background: v.cardBg, borderRadius: 28, padding: "2.5rem 2rem", textAlign: "center", maxWidth: 340, width: "90%", boxShadow: "0 20px 60px rgba(0,0,0,0.4)", animation: "popIn 0.5s ease forwards", position: "relative", zIndex: 1 }}>
+        <div style={{ fontSize: "3.5rem", marginBottom: "0.5rem" }}>{pct === 100 ? "🏆" : pct >= 70 ? "🌟" : pct >= 40 ? "👍" : "💪"}</div>
+        <div style={{ fontSize: "1.6rem", fontWeight: 800, color: v.accent, marginBottom: "0.3rem" }}>{msg[0]}</div>
+        <div style={{ fontSize: "0.95rem", color: v.textMuted, marginBottom: "1rem" }}>{msg[1]}</div>
+        <div style={{ background: v.accentBg, borderRadius: 16, padding: "1rem", marginBottom: "1.5rem" }}>
+          <div style={{ fontSize: "2.5rem", fontWeight: 900, color: v.accent }}>{score}/{total}</div>
+          <div style={{ fontSize: "0.85rem", color: v.textMuted }}>{pct}%</div>
+          <div style={{ height: 8, borderRadius: 99, background: v.inputBorder, marginTop: "0.6rem", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: pct === 100 ? "#f6d365" : pct >= 70 ? "#27ae60" : pct >= 40 ? "#3498db" : "#e74c3c", borderRadius: 99, transition: "width 1s ease" }} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "0.7rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <button onClick={onRejouer} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", color: "#fff", border: "none", borderRadius: 50, padding: "0.7rem 1.4rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem" }}>
+            🔄 {langue === "en" ? "Play again" : langue === "es" ? "Jugar de nuevo" : "Rejouer"}
+          </button>
+          <button onClick={onChanger} style={{ background: "transparent", border: `2px solid ${v.accent}`, color: v.accent, borderRadius: 50, padding: "0.7rem 1.4rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem" }}>
+            {langue === "en" ? "Change level" : langue === "es" ? "Cambiar nivel" : "Changer"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function JeuCalculMental({ v, t, langue, onClose }) {
   const [score, setScore] = useState(0);
   const [question, setQuestion] = useState(null);
@@ -1816,12 +1882,10 @@ function JeuCalculMental({ v, t, langue, onClose }) {
   };
 
   if (termine) return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
-      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{score >= 8 ? "🏆" : score >= 5 ? "👍" : "💪"}</div>
-      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: v.accent }}>{score}/{MAX}</div>
-      <div style={{ color: v.textMuted, marginBottom: "1.5rem" }}>{langue === "en" ? "Good job!" : langue === "es" ? "¡Bien hecho!" : "Bien joué !"}</div>
-      <button onClick={() => { setScore(0); setNb(0); setTermine(false); genererQuestion(); }} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.5rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
-    </div>
+    <ConfettiEcran score={score} total={MAX} langue={langue} v={v}
+      onRejouer={() => { setScore(0); setNb(0); setTermine(false); genererQuestion(); }}
+      onChanger={() => { setScore(0); setNb(0); setTermine(false); genererQuestion(); }}
+    />
   );
 
   return (
@@ -1888,15 +1952,10 @@ function JeuCapitales({ v, t, langue, onClose }) {
   );
 
   if (termine) return (
-    <div style={{ textAlign: "center", padding: "2rem" }}>
-      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>{score >= 8 ? "🌍" : score >= 5 ? "👍" : "💪"}</div>
-      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: v.accent }}>{score}/{MAX}</div>
-      <div style={{ color: v.textMuted, marginBottom: "1.5rem" }}>{langue === "en" ? "Good job!" : langue === "es" ? "¡Bien hecho!" : "Bien joué !"}</div>
-      <div style={{ display: "flex", gap: "0.6rem", justifyContent: "center", flexWrap: "wrap" }}>
-        <button onClick={() => demarrer(niveau)} style={{ background: v.btnActive, color: "#fff", border: "none", borderRadius: 50, padding: "0.6rem 1.2rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>{langue === "en" ? "Retry" : langue === "es" ? "Reintentar" : "Rejouer"}</button>
-        <button onClick={() => setNiveau(null)} style={{ background: "transparent", border: `1px solid ${v.accent}`, borderRadius: 50, padding: "0.6rem 1.2rem", cursor: "pointer", fontFamily: "inherit", color: v.accent, fontWeight: 700 }}>{langue === "en" ? "Change level" : langue === "es" ? "Cambiar nivel" : "Changer de niveau"}</button>
-      </div>
-    </div>
+    <ConfettiEcran score={score} total={MAX} langue={langue} v={v}
+      onRejouer={() => demarrer(niveau)}
+      onChanger={() => { setNiveau(null); setTermine(false); }}
+    />
   );
 
   return (
@@ -2223,25 +2282,23 @@ ${texte.slice(0, 4000)}`);
     </div>
   );
 
+  const bannerQuiz = isPremium ? (
+    <div style={{ textAlign: "right", fontSize: "0.75rem", color: "#b8860b", opacity: 0.8, marginBottom: "0.4rem", fontStyle: "italic" }}>⭐ {langue === "en" ? "Unlimited quizzes" : langue === "es" ? "Quizzes ilimitados" : "Quiz illimités"}</div>
+  ) : (
+    <div style={{ padding: "0.5rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.1)" : "rgba(253,160,133,0.1)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
+      {usageAujourdhui >= limiteJour ? `🔒 ${langue === "en" ? "Limit reached" : langue === "es" ? "Límite alcanzado" : "Limite atteinte"}` : `📊 ${usageAujourdhui}/${limiteJour} ${langue === "en" ? "today — 3/day max" : langue === "es" ? "hoy — 3/día max" : "aujourd'hui — 3 par jour"}`}
+    </div>
+  );
+
   return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
+      {bannerQuiz}
       {questions.length === 0 ? (
         <Card v={v}>
           <div style={{ fontWeight: 700, color: v.accent, marginBottom: "1rem" }}>🌿 {t.tonCours}</div>
           <SelectStyle v={v} value={matiere} onChange={e => setMatiere(e.target.value)} style={{ marginBottom: "0.8rem" }}>
             {matieres.map(m => <option key={m} value={m}>{m}</option>)}
           </SelectStyle>
-  const limiteBannerQ = isPremium ? (
-    <div style={{ textAlign: "right", fontSize: "0.75rem", color: "#b8860b", opacity: 0.75, marginBottom: "0.4rem", fontStyle: "italic" }}>⭐ {langue === "en" ? "Unlimited quizzes" : langue === "es" ? "Quizzes ilimitados" : "Quiz illimités"}</div>
-  ) : (
-    <div style={{ padding: "0.6rem 1rem", borderRadius: 12, background: usageAujourdhui >= limiteJour ? "rgba(231,76,60,0.12)" : "rgba(253,160,133,0.12)", border: `1px solid ${usageAujourdhui >= limiteJour ? "#e74c3c" : "#fda085"}`, marginBottom: "0.8rem", fontSize: "0.83rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-      <span style={{ color: usageAujourdhui >= limiteJour ? "#e74c3c" : "#e67e22" }}>
-        {usageAujourdhui >= limiteJour ? `🔒 ${langue === "en" ? "Limit reached" : langue === "es" ? "Límite alcanzado" : "Limite atteinte"}` : `📊 ${usageAujourdhui}/${limiteJour} ${langue === "en" ? "today — 3/day max" : langue === "es" ? "hoy — 3/día max" : "aujourd'hui — 3 par jour"}`}
-      </span>
-      <button onClick={onPremium} style={{ background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.3rem 0.8rem", cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>⭐ Premium</button>
-    </div>
-  );
-
           <ZoneSaisie texte={texte} setTexte={setTexte} placeholder={t.collerCours} t={t} v={v} />
 
           {/* Mode selector */}

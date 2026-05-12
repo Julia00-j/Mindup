@@ -1748,8 +1748,7 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
           <Btn v={v} onClick={() => setGenere(true)} full={isMobile}>✨ {t.genererPlanning}</Btn>
         </div>
       </Card>
-      {genere && (
-        <Card v={v} style={{ padding: isMobile ? "0.8rem" : "1.2rem" }}>
+      <Card v={v} style={{ padding: isMobile ? "0.8rem" : "1.2rem", marginTop: "0.8rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
             <Btn v={v} outline small onClick={() => { const d = new Date(moisActuel); d.setMonth(d.getMonth()-1); setMoisActuel(d); }}>←</Btn>
             <div style={{ fontWeight: 700, fontSize: isMobile ? "1rem" : "1.1rem", color: v.text }}>{nomsMois[mois]} {annee}</div>
@@ -1817,9 +1816,9 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
             />
             <div style={{ marginTop: "0.8rem", marginBottom: "1rem" }}>
               <div style={{ fontSize: "0.8rem", color: v.textMuted, marginBottom: "0.4rem" }}>Couleur de la case :</div>
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                 {COULEURS_NOTE.map(c => (
-                  <button key={c} onClick={() => setCouleurTemp(c)} style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: couleurTemp === c ? "3px solid #333" : "2px solid transparent", cursor: "pointer", outline: "none" }} />
+                  <button key={c} onClick={() => setCouleurTemp(c)} style={{ width: 28, height: 28, minWidth: 28, minHeight: 28, flexShrink: 0, borderRadius: "50%", background: c, border: couleurTemp === c ? "3px solid #333" : "2px solid transparent", cursor: "pointer", outline: "none", padding: 0 }} />
                 ))}
               </div>
             </div>
@@ -2710,7 +2709,7 @@ export default function App() {
       {/* CONTENU */}
       <div style={{ padding: isMobile ? "0.75rem" : "2rem", maxWidth: "100%", overflowX: "hidden" }}>
         {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} xpActuel={xpActuel} xpRequis={xpRequis} niveau={niveau} isPremium={isPremium} onPremium={() => setShowPremiumModal(true)} />}
-        {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} />}
+        {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} notesCalendrier={notesCalendrier} setNotesCalendrier={setNotesCalendrier} />}
         {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "historique"&& <Historique historique={historique} setHistorique={setHistorique} t={t} v={v} />}

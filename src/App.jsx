@@ -1650,9 +1650,20 @@ function Profil({ nom, setNom, prenom, setPrenom, photo, setPhoto, historique, e
 }
 
 // ─── PLANNING ─────────────────────────────────────────────────────────────────
-function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, setMoisActuel, matieres, notesCalendrier, setNotesCalendrier }) {
+function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, setMoisActuel, matieres, notesCalendrier, setNotesCalendrier, prefsPlanning, setPrefsPlanning }) {
   const isMobile = useIsMobile();
   const addExamen = () => setExamens([...examens, { matiere: "Français", date: "", nom: "" }]);
+  const [showPrefs, setShowPrefs] = useState(false);
+  const DEFAULT_SESSIONS = [
+    { joursAvant: 20, type: "📖", label: "Première lecture" },
+    { joursAvant: 15, type: "📖", label: "Deuxième lecture" },
+    { joursAvant: 10, type: "✏️", label: "Exercices" },
+    { joursAvant: 7,  type: "✏️", label: "Approfondissement" },
+    { joursAvant: 4,  type: "🔁", label: "Révision rapide" },
+    { joursAvant: 2,  type: "📝", label: "Résumé final" },
+    { joursAvant: 1,  type: "🔥", label: "Veille d'exam" },
+  ];
+  const sessionsPrefs = prefsPlanning?.sessions || DEFAULT_SESSIONS;
   const [modalNote, setModalNote] = useState(null); // { key, jour }
   const [noteTemp, setNoteTemp] = useState("");
   const [couleurTemp, setCouleurTemp] = useState("#fda085");
@@ -1695,7 +1706,7 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
       // Sessions AVANT l'exam
       let sessions = [];
       if (daysLeft > 8) {
-        sessions = [{joursAvant:20,type:"📖"},{joursAvant:15,type:"📖"},{joursAvant:10,type:"✏️"},{joursAvant:7,type:"✏️"},{joursAvant:4,type:"🔁"},{joursAvant:2,type:"📝"},{joursAvant:1,type:"🔥"}];
+        sessions = sessionsPrefs.map(s => ({ joursAvant: s.joursAvant, type: s.type }));
       } else {
         for (let i = daysLeft; i >= 1; i--) sessions.push({ joursAvant: i, type: i > Math.floor(daysLeft*0.6) ? "📖" : i > Math.floor(daysLeft*0.3) ? "✏️" : "📝" });
       }
@@ -1747,6 +1758,9 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
           <Btn v={v} outline onClick={addExamen} full={isMobile}>{t.ajouterExamen}</Btn>
           <Btn v={v} onClick={() => setGenere(true)} full={isMobile}>✨ {t.genererPlanning}</Btn>
         </div>
+        <button type="button" onClick={() => setShowPrefs(true)} style={{ marginTop: "0.6rem", background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.35rem 0.9rem", color: v.textMuted, fontSize: "0.78rem", cursor: "pointer", fontFamily: "inherit" }}>
+          ⚙️ Mes préférences de révision
+        </button>
       </Card>
       <Card v={v} style={{ padding: isMobile ? "0.8rem" : "1.2rem", marginTop: "0.8rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
@@ -1800,6 +1814,58 @@ function Planning({ t, v, examens, setExamens, genere, setGenere, moisActuel, se
           </div>
         </Card>
       )}
+      {/* MODAL PREFS */}
+      {showPrefs && (
+        <div onClick={() => setShowPrefs(false)} style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: v.cardBg, borderRadius: 20, padding: "1.5rem", width: "100%", maxWidth: 420, maxHeight: "85vh", overflowY: "auto", boxShadow: "0 12px 40px rgba(0,0,0,0.3)" }}>
+            <div style={{ fontWeight: 700, color: v.accent, fontSize: "1rem", marginBottom: "0.3rem" }}>⚙️ Mes préférences de révision</div>
+            <div style={{ fontSize: "0.78rem", color: v.textMuted, marginBottom: "1.2rem" }}>Indique combien de jours avant chaque exam tu veux réviser. La valeur 0 désactive la session.</div>
+            {sessionsPrefs.map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.7rem", padding: "0.6rem 0.8rem", borderRadius: 12, background: v.accentBg, border: `1px solid ${v.cardBorder}` }}>
+                <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>{s.type}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <input
+                    value={s.label}
+                    onChange={e => {
+                      const updated = sessionsPrefs.map((x, j) => j === i ? { ...x, label: e.target.value } : x);
+                      setPrefsPlanning({ ...prefsPlanning, sessions: updated });
+                    }}
+                    style={{ width: "100%", background: "transparent", border: "none", outline: "none", color: v.text, fontFamily: "inherit", fontSize: "0.82rem", fontWeight: 600 }}
+                  />
+                  <div style={{ fontSize: "0.7rem", color: v.textMuted }}>J-{s.joursAvant}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", flexShrink: 0 }}>
+                  <button onClick={() => {
+                    const updated = sessionsPrefs.map((x, j) => j === i ? { ...x, joursAvant: Math.max(1, x.joursAvant - 1) } : x);
+                    setPrefsPlanning({ ...prefsPlanning, sessions: updated });
+                  }} style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${v.inputBorder}`, background: "transparent", color: v.text, cursor: "pointer", fontFamily: "inherit", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>−</button>
+                  <span style={{ minWidth: 32, textAlign: "center", fontWeight: 700, color: v.accent, fontSize: "0.85rem" }}>J-{s.joursAvant}</span>
+                  <button onClick={() => {
+                    const updated = sessionsPrefs.map((x, j) => j === i ? { ...x, joursAvant: x.joursAvant + 1 } : x);
+                    setPrefsPlanning({ ...prefsPlanning, sessions: updated });
+                  }} style={{ width: 26, height: 26, borderRadius: "50%", border: `1px solid ${v.inputBorder}`, background: "transparent", color: v.text, cursor: "pointer", fontFamily: "inherit", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>+</button>
+                  <button onClick={() => {
+                    const updated = sessionsPrefs.filter((_, j) => j !== i);
+                    setPrefsPlanning({ ...prefsPlanning, sessions: updated });
+                  }} style={{ width: 26, height: 26, borderRadius: "50%", border: "none", background: "rgba(231,76,60,0.12)", color: "#e74c3c", cursor: "pointer", fontFamily: "inherit", fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>🗑</button>
+                </div>
+              </div>
+            ))}
+            {/* Ajouter une session */}
+            <button onClick={() => {
+              const newS = { joursAvant: 5, type: "📖", label: "Nouvelle session" };
+              setPrefsPlanning({ ...prefsPlanning, sessions: [...sessionsPrefs, newS] });
+            }} style={{ width: "100%", marginBottom: "0.8rem", background: "transparent", border: `1px dashed ${v.accent}`, borderRadius: 12, padding: "0.5rem", color: v.accent, cursor: "pointer", fontFamily: "inherit", fontSize: "0.82rem" }}>
+              + Ajouter une session de révision
+            </button>
+            <div style={{ display: "flex", gap: "0.6rem", marginTop: "0.5rem" }}>
+              <button onClick={() => { setPrefsPlanning({ ...prefsPlanning, sessions: DEFAULT_SESSIONS }); }} style={{ flex: 1, background: "transparent", border: `1px solid ${v.inputBorder}`, borderRadius: 50, padding: "0.6rem", color: v.textMuted, cursor: "pointer", fontFamily: "inherit", fontSize: "0.82rem" }}>🔄 Réinitialiser</button>
+              <button onClick={() => setShowPrefs(false)} style={{ flex: 1, background: "linear-gradient(135deg,#f6d365,#fda085)", border: "none", borderRadius: 50, padding: "0.6rem", color: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 700 }}>✅ Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL NOTE */}
       {modalNote && (
         <div onClick={() => setModalNote(null)} style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
@@ -2562,6 +2628,17 @@ export default function App() {
   const [genere, setGenere] = useLocalStorage("genere", false);
   const [matieres, setMatieres] = useLocalStorage("matieres", MATIERES_DEFAULT);
   const [notesCalendrier, setNotesCalendrier] = useLocalStorage("notesCalendrier", {});
+  const [prefsPlanning, setPrefsPlanning] = useLocalStorage("prefsPlanning", {
+    sessions: [
+      { joursAvant: 20, type: "📖", label: "Première lecture" },
+      { joursAvant: 15, type: "📖", label: "Deuxième lecture" },
+      { joursAvant: 10, type: "✏️", label: "Exercices" },
+      { joursAvant: 7,  type: "✏️", label: "Approfondissement" },
+      { joursAvant: 4,  type: "🔁", label: "Révision rapide" },
+      { joursAvant: 2,  type: "📝", label: "Résumé final" },
+      { joursAvant: 1,  type: "🔥", label: "Veille d'exam" },
+    ]
+  });
   const [moisActuel, setMoisActuel] = useState(new Date());
   const [pomodoroVisible, setPomodoroVisible] = useState(false);
   const isMobile = useIsMobile();
@@ -2709,7 +2786,7 @@ export default function App() {
       {/* CONTENU */}
       <div style={{ padding: isMobile ? "0.75rem" : "2rem", maxWidth: "100%", overflowX: "hidden" }}>
         {onglet === "profil"    && <Profil nom={nom} setNom={setNom} prenom={prenom} setPrenom={setPrenom} photo={photo} setPhoto={setPhoto} historique={historique} examens={examens} v={v} langue={langue} t={t} streakActuel={streakActuel} xpActuel={xpActuel} xpRequis={xpRequis} niveau={niveau} isPremium={isPremium} onPremium={() => setShowPremiumModal(true)} />}
-        {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} notesCalendrier={notesCalendrier} setNotesCalendrier={setNotesCalendrier} />}
+        {onglet === "planning"  && <Planning t={t} v={v} examens={examens} setExamens={setExamens} genere={genere} setGenere={setGenere} moisActuel={moisActuel} setMoisActuel={setMoisActuel} matieres={matieres} notesCalendrier={notesCalendrier} setNotesCalendrier={setNotesCalendrier} prefsPlanning={prefsPlanning} setPrefsPlanning={setPrefsPlanning} />}
         {onglet === "resume"    && <Resume t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "quiz"      && <Quiz t={t} v={v} ajouterHistorique={ajouterHistorique} matieres={matieres} langue={langue} peutGenerer={peutGenerer} isPremium={isPremium} usageAujourdhui={usageAujourdhui} limiteJour={LIMITE_JOUR} onPremium={() => setShowPremiumModal(true)} />}
         {onglet === "historique"&& <Historique historique={historique} setHistorique={setHistorique} t={t} v={v} />}
